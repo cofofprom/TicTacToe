@@ -5,7 +5,7 @@ set(CMAKE_C_STANDARD 11)
 
 find_package(Threads REQUIRED)
 
-add_executable(TTTClient Client/client.c )
+add_executable(TTTClient Client/client.c SetField/SetField.c SetField/SetField.h)
 add_executable(TTTServer Server/server.c )
 
 target_link_libraries(TTTClient ws2_32)
