@@ -22,6 +22,11 @@ GAME_BOARD *initNewBoard(char size)
 
     newBoard->size = size;
 
+    for(int i = 0; i < size*size; i++)
+    {
+        newBoard->board[i] = EmptyCell;
+    }
+
     return newBoard;
 }
 
@@ -172,4 +177,57 @@ int checkBoardWinConditions(GAME_BOARD *targetBoard) {
     }
 
     return GAMEBOARD_NO_WIN;
+}
+
+char *encodeBoard(GAME_BOARD *targetBoard) {
+    if(targetBoard == NULL || targetBoard->board == NULL)
+    {
+        return NULL;
+    }
+
+    int boardEncodingLength = targetBoard->size * targetBoard->size;
+
+    char* sendBuffer = calloc(boardEncodingLength + 2,sizeof(char));
+    if(sendBuffer == NULL)
+    {
+        return NULL;
+    }
+    sendBuffer[0] = targetBoard->size;
+    int result = memcpy_s(sendBuffer+1,boardEncodingLength,targetBoard->board,boardEncodingLength);
+    if(result != 0)
+    {
+        free(sendBuffer);
+        return 0;
+    }
+
+    return sendBuffer;
+}
+
+GAME_BOARD *decodeBoard(char *encoding) {
+    if(encoding == NULL)
+    {
+        return NULL;
+    }
+
+    char boardSideLength = encoding[0];
+    int encodingLength = strlen(encoding+1);
+    if(encodingLength/boardSideLength != boardSideLength || boardSideLength < 3 || boardSideLength > 100)
+    {
+        return NULL;
+    }
+
+    GAME_BOARD* newBoard = initNewBoard(boardSideLength);
+    if(newBoard == NULL)
+    {
+        return NULL;
+    }
+
+    int result = memcpy_s(newBoard->board,encodingLength,encoding+1,encodingLength);
+    if(result != 0)
+    {
+        freeGameBoard(newBoard);
+        return NULL;
+    }
+
+    return newBoard;
 }

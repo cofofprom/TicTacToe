@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <malloc.h>
+#include <string.h>
 
 #define MAX_BOARD_SIZE 100
 #define MIN_BOARD_SIZE 3
@@ -16,7 +18,7 @@
 #define GAMEBOARD_INDEX_OUT_OF_RANGE_ERROR -5
 #define GAMEBOARD_NO_WIN -6
 
-typedef enum cell_types_enum{EmptyCell,CrossCell,ZeroCell} CELL_TYPE;
+typedef enum cell_types_enum{EmptyCell = 1,ZeroCell = 2,CrossCell = 3} CELL_TYPE;
 
 ///@brief Struct to contain game board info
 typedef struct game_board_struct
@@ -67,5 +69,19 @@ CELL_TYPE getCellTypeAt(GAME_BOARD* targetBoard, char row, char column);
 ///@retval CrossCell Crosses won
 ///@retval ZeroCell Zeros won
 int checkBoardWinConditions(GAME_BOARD* targetBoard);
+
+///@brief Encode board for network transmission
+///@details Encodes board for network transmission, as a null-terminated string
+///@param targetBoard board to encode
+///@retval NULL On error
+///@retval Encoded string
+char* encodeBoard(GAME_BOARD* targetBoard);
+
+///@brief Decode board from encoded string
+///@details Decode game board from string
+///@param encoding Gameboard encoding string
+///@retval NULL On error
+///@retval GAME_BOARD* On success
+GAME_BOARD* decodeBoard(char* encoding);
 
 #endif //TICTACTOE_GAMEBOARD_H
