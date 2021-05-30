@@ -17,6 +17,7 @@
 #define GAMEBOARD_UNKNOWN_CELL_TYPE_ERROR -4
 #define GAMEBOARD_INDEX_OUT_OF_RANGE_ERROR -5
 #define GAMEBOARD_NO_WIN -6
+#define GAMEBOARD_BOARD_TOO_LARGE -7
 
 typedef enum cell_types_enum{EmptyCell = 1,ZeroCell = 2,CrossCell = 3} CELL_TYPE;
 
@@ -83,5 +84,14 @@ char* encodeBoard(GAME_BOARD* targetBoard);
 ///@retval NULL On error
 ///@retval GAME_BOARD* On success
 GAME_BOARD* decodeBoard(char* encoding);
+
+///@brief Draw game board in console
+///@details Draws game board up to 10*10 tiles in console
+///@attention Does not support boards larger that 10*10
+///@param targetBoard Board to draw
+///@retval GAMEBOARD_SUCCESS on success
+///@retval GAMEBOARD_BOARD_TOO_LARGE if board size is >10
+///@retval GAMEBOARD_NULL_PTR_ERROR if NULL pointer is encountered
+int drawCLIgameboard(GAME_BOARD* targetBoard);
 
 #endif //TICTACTOE_GAMEBOARD_H
