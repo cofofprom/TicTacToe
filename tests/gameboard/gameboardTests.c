@@ -29,9 +29,9 @@ void testBoardInit()
         emptyGoodBoard[i] = EmptyCell;
     }
 
-    assert_int_equal(10,goodBoard->size);
-    assert_int_equal(3,smallBoard->size);
-    assert_int_equal(100,bigBoard->size);
+    assert_int_equal(10,goodBoard->boardSize);
+    assert_int_equal(3,smallBoard->boardSize);
+    assert_int_equal(100,bigBoard->boardSize);
 
     assert_n_array_equal(goodBoard->board,emptyGoodBoard,10);
     assert_n_array_equal(smallBoard->board,emptySmallBoard,3);
@@ -53,9 +53,9 @@ void testGameboardMakeMove()
     assert_int_equal(GAMEBOARD_SUCCESS,result);
     assert_int_equal(CrossCell,testBoard->board[0]);
 
-    result = makeMove(testBoard,testBoard->size - 1,testBoard->size - 1,CrossCell);
+    result = makeMove(testBoard, testBoard->boardSize - 1, testBoard->boardSize - 1, CrossCell);
     assert_int_equal(GAMEBOARD_SUCCESS,result);
-    assert_int_equal(CrossCell,testBoard->board[(testBoard->size)*(testBoard->size)-1]);
+    assert_int_equal(CrossCell,testBoard->board[(testBoard->boardSize) * (testBoard->boardSize) - 1]);
 
     result = makeMove(testBoard,0,0,ZeroCell);
     assert_int_equal(GAMEBOARD_INVALID_MOVE_CELL_OCCUPIED_ERROR,result);
@@ -388,8 +388,8 @@ void boardDecoderCheck()
     char* encodedBoard = encodeBoard(originalBoard);
 
     GAME_BOARD* decodedBoard = decodeBoard(encodedBoard);
-    assert_int_equal(originalBoard->size,decodedBoard->size);
-    assert_n_array_equal(originalBoard->board,decodedBoard->board,originalBoard->size);
+    assert_int_equal(originalBoard->boardSize, decodedBoard->boardSize);
+    assert_n_array_equal(originalBoard->board,decodedBoard->board,originalBoard->boardSize);
 
     freeGameBoard(originalBoard);
     freeGameBoard(decodedBoard);

@@ -17,13 +17,17 @@
 #define GAMEBOARD_UNKNOWN_CELL_TYPE_ERROR -4
 #define GAMEBOARD_INDEX_OUT_OF_RANGE_ERROR -5
 #define GAMEBOARD_NO_WIN -6
+#define GAMEBOARD_BOARD_SIZE_ERROR -7
+#define GAMEBOARD_NOMEM_ERROR -8
+#define GAMEBOARD_GENERAL_ERROR -9
+#define GAMEBOARD_END_OF_ITERATION -10
 
 typedef enum cell_types_enum{EmptyCell = 1,ZeroCell = 2,CrossCell = 3} CELL_TYPE;
 
 ///@brief Struct to contain game board info
 typedef struct game_board_struct
 {
-    char size;
+    char boardSize;
     char* board;
 }GAME_BOARD;
 
