@@ -15,7 +15,7 @@ typedef struct gamestate_history_struct
     char boardSize;
     char* player1name;
     char* player2name;
-    char winner; //-1 - current, 0 - tie, 1 - player1 won, 2 - player2 won
+    char winner; //-1 - game in progress, 0 - tie, 1 - player1 won, 2 - player2 won
     int allocatedSize;
     int iteratorIndex;
     char** boards;
