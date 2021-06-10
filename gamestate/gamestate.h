@@ -12,11 +12,11 @@
 
 typedef struct gamestate_history_struct
 {
-    int steps;
+    short steps;
     char boardSize;
     char* player1name;
     char* player2name;
-    char winner;
+    char winner; //-1 - current, 0 - tie, 1 - player1 won, 2 - player2 won
     int allocatedSize;
     int iteratorIndex;
     char** boards;

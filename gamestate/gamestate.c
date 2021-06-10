@@ -297,3 +297,129 @@ int updateBoardFromPreviousBoardState(GAME_STATE_HISTORY *targetHistory, GAME_BO
 
     return GAMEBOARD_SUCCESS;
 }
+
+char *encodeGameHistory(GAME_STATE_HISTORY *targetHistory) {
+    if(targetHistory == NULL)
+    {
+        return NULL;
+    }
+
+    int encodingLength = strlen(targetHistory->player1name) + 1;//Player1 name  + length
+    encodingLength += strlen(targetHistory->player2name) + 1;//Player2 name  + length
+    encodingLength += 1 + sizeof(short) + 1;//Game result + num game states + board size
+    encodingLength += targetHistory->steps * (targetHistory->boardSize*targetHistory->boardSize);//All boards
+    encodingLength++; //Termintaing zero for convenient string processing
+
+    char* outputBuffer = calloc(encodingLength, sizeof(char));
+    if(outputBuffer == NULL)
+    {
+        return NULL;
+    }
+    char* currentBufferPos = outputBuffer;
+
+//    memcpy(currentBufferPos,&gameNumber,sizeof(short));
+//    currentBufferPos[0]++;//Increment to prevent zeros, decrement during decoding
+//    currentBufferPos[1]++;//Increment to prevent zeros, decrement during decoding
+//    currentBufferPos += sizeof(short);
+
+    *currentBufferPos = strlen(targetHistory->player1name);
+    currentBufferPos++;
+
+    strcpy(currentBufferPos,targetHistory->player1name);
+    currentBufferPos += strlen(targetHistory->player1name);
+
+    *currentBufferPos = strlen(targetHistory->player2name);
+    currentBufferPos++;
+
+    strcpy(currentBufferPos,targetHistory->player2name);
+    currentBufferPos += strlen(targetHistory->player2name);
+
+    *currentBufferPos = targetHistory->boardSize;
+    currentBufferPos++;
+
+    *currentBufferPos = targetHistory->winner + 2;//Avoid zeros for proper string processing
+    currentBufferPos ++;
+
+    memcpy(currentBufferPos,&targetHistory->steps,sizeof(short));
+    currentBufferPos[0]++;//Increment to prevent zeros, decrement during decoding
+    currentBufferPos[1]++;//Increment to prevent zeros, decrement during decoding
+    currentBufferPos += sizeof(short);
+
+    for(short i = 0; i < targetHistory->steps; i++)
+    {
+        memcpy(currentBufferPos,targetHistory->boards[i],targetHistory->boardSize*targetHistory->boardSize);
+        currentBufferPos += targetHistory->boardSize*targetHistory->boardSize;
+    }
+
+    return outputBuffer;
+}
+
+GAME_STATE_HISTORY *decodeGameHistory(char *encoding) {
+    if(encoding == NULL)
+    {
+        return NULL;
+    }
+
+    char* currentBufferPos = encoding;
+
+    char p1NameLength = *currentBufferPos;
+    currentBufferPos++;
+    char* p1Name = calloc(p1NameLength + 1, sizeof(char));
+    if(p1Name == NULL)
+    {
+        return NULL;
+    }
+    memcpy(p1Name,currentBufferPos,p1NameLength);
+    currentBufferPos += p1NameLength;
+
+    char p2NameLength = *currentBufferPos;
+    currentBufferPos++;
+    char* p2Name = calloc(p2NameLength + 1, sizeof(char));
+    if(p1Name == NULL)
+    {
+        free(p1Name);
+        return NULL;
+    }
+    memcpy(p2Name,currentBufferPos,p2NameLength);
+    currentBufferPos += p2NameLength;
+
+    char boardSize = *currentBufferPos;
+    currentBufferPos++;
+    GAME_STATE_HISTORY* newHistory = initGameStateHistory(boardSize,p1Name,p2Name);
+    if(newHistory == NULL)
+    {
+        free(p1Name);
+        free(p2Name);
+        return NULL;
+    }
+    GAME_BOARD* tempBoard = initNewBoard(boardSize);
+    if(tempBoard == NULL)
+    {
+        free(p1Name);
+        free(p2Name);
+        freeGameStateHistory(newHistory);
+        return NULL;
+    }
+
+    newHistory->winner = *currentBufferPos - 2;
+    currentBufferPos++;
+
+    short numSteps = 0;
+    currentBufferPos[0] -= 1;//Revert zero perevention
+    currentBufferPos[1] -= 1;//Revert zero prevention
+    memcpy(&numSteps,currentBufferPos,sizeof(short));
+    currentBufferPos += sizeof(short);
+
+    for(short i = 0; i < numSteps; i++)
+    {
+        memcpy(tempBoard->board,currentBufferPos,boardSize*boardSize);
+        currentBufferPos += boardSize*boardSize;
+        appendBoardState(newHistory,tempBoard);
+    }
+
+    free(p1Name);
+    free(p2Name);
+    freeGameBoard(tempBoard);
+
+    return newHistory;
+}

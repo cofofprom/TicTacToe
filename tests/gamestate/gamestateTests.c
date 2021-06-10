@@ -106,7 +106,7 @@ void testHistoryIteratorSeek()
     freeGameBoard(testBoard);
 }
 
-void testHistoryInterator()
+void testHistoryIterator()
 {
     GAME_STATE_HISTORY* testHistory = initGameStateHistory(3,"PLAYERONE","PLAYERTWO");
     GAME_BOARD* testBoard = initNewBoard(3);
@@ -146,11 +146,55 @@ void testHistoryInterator()
     freeGameStateHistory(testHistory);
 }
 
-void test_fixture_gamehistory_interator()
+void test_fixture_gamehistory_iterator()
 {
     test_fixture_start();
     run_test(testHistoryIteratorSeek);
-    run_test(testHistoryInterator);
+    run_test(testHistoryIterator);
+    test_fixture_end();
+}
+
+void testHistoryEncoding()
+{
+    GAME_STATE_HISTORY* testHistory = initGameStateHistory(3,"PLAYERONE","PLAYERTWO");
+    GAME_BOARD* testBoard = initNewBoard(3);
+
+    appendBoardState(testHistory,testBoard);
+
+    makeMove(testBoard,1,1,CrossCell);
+    appendBoardState(testHistory,testBoard);
+
+    makeMove(testBoard,2,2,ZeroCell);
+    appendBoardState(testHistory,testBoard);
+
+    makeMove(testBoard,0,1,CrossCell);
+    appendBoardState(testHistory,testBoard);
+
+    makeMove(testBoard,0,0,ZeroCell);
+    appendBoardState(testHistory,testBoard);
+
+    char* outputBuffer = encodeGameHistory(testHistory);
+
+    GAME_STATE_HISTORY* decodedHistory = decodeGameHistory(outputBuffer);
+
+    assert_int_equal(testHistory->winner,decodedHistory->winner);
+    assert_int_equal(testHistory->steps,testHistory->steps);
+    assert_string_equal(testHistory->player1name,testHistory->player1name);
+    assert_string_equal(testHistory->player2name,decodedHistory->player2name);
+    for(int i = 0; i < decodedHistory->steps; i++)
+    {
+        assert_n_array_equal(testHistory->boards[i],decodedHistory->boards[i],3*3);
+    }
+    freeGameStateHistory(testHistory);
+    freeGameStateHistory(decodedHistory);
+    free(outputBuffer);
+    freeGameBoard(testBoard);
+}
+
+void test_fixture_gamehistory_encoding()
+{
+    test_fixture_start();
+    run_test(testHistoryEncoding);
     test_fixture_end();
 }
 
@@ -160,7 +204,8 @@ void test_fixture_gamehistory_interator()
 void all_tests( void )
 {
     test_fixture_gamehistory_base();
-    test_fixture_gamehistory_interator();
+    test_fixture_gamehistory_iterator();
+    test_fixture_gamehistory_encoding();
 }
 
 //
