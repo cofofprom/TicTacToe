@@ -6,9 +6,8 @@
 #include <malloc.h>
 #include <string.h>
 
+#include "../userdata/userdata.h"
 #include "../gameboard/gameboard.h"
-
-#define GAMESTATE_MAX_PLAYERNAME_LENGTH 32
 
 typedef struct gamestate_history_struct
 {
