@@ -16,4 +16,4 @@ target_link_libraries(TTTServer Threads::Threads)
 #Test executables
 add_executable(gameboardTest seatest/seatest.c gameboard/gameboard.c tests/gameboard/gameboardTests.c)
 add_executable(gamestateTest seatest/seatest.c gameboard/gameboard.c gamestate/gamestate.c gamestate/gamestate.h tests/gamestate/gamestateTests.c)
-add_executable(userdataTest seatest/seatest.c userdata/userdata.c userdata/userdata.h)
+add_executable(userdataTest seatest/seatest.c userdata/userdata.c userdata/userdata.h tests/userdata/userdataTests.c)

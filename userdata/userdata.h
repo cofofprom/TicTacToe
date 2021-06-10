@@ -44,4 +44,16 @@ USER_DATA* initNamedUserData(char* username);
 ///@param targetUserData Userdata to dispose of
 void freeUserData(USER_DATA* targetUserData);
 
+///@brief Encode user data to null-terminated string
+///@param targetUserData User data to encode
+///@retval NULL On error
+///@retval char* Userdata encoding
+char* encodeUserData(USER_DATA* targetUserData);
+
+///@brief Decode user data
+///@param encoding User data encoding
+///@retval NULL On error
+///@retval USER_DATA* Decoded user data
+USER_DATA* decodeUserData(char* encoding);
+
 #endif //TICTACTOE_USERDATA_H
