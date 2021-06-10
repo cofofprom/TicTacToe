@@ -17,13 +17,13 @@ GAME_STATE_HISTORY *initGameStateHistory(char boardSize, char* player1name, char
         return NULL;
     }
 
-    newHistory->player1name = calloc(GAMESTATE_MAX_PLAYERNAME_LENGTH+1,sizeof(char));
+    newHistory->player1name = calloc(USERDATA_USERNAME_MAX_LENGTH+1,sizeof(char));
     if(newHistory->player1name == NULL)
     {
         free(newHistory);
         return NULL;
     }
-    int result = strcpy_s(newHistory->player1name,GAMESTATE_MAX_PLAYERNAME_LENGTH,player1name);
+    int result = strcpy_s(newHistory->player1name,USERDATA_USERNAME_MAX_LENGTH,player1name);
     if(result != 0)
     {
         free(newHistory->player1name);
@@ -31,14 +31,14 @@ GAME_STATE_HISTORY *initGameStateHistory(char boardSize, char* player1name, char
         return NULL;
     }
 
-    newHistory->player2name = calloc(GAMESTATE_MAX_PLAYERNAME_LENGTH+1,sizeof(char));
+    newHistory->player2name = calloc(USERDATA_USERNAME_MAX_LENGTH+1,sizeof(char));
     if(newHistory->player2name == NULL)
     {
         free(newHistory->player1name);
         free(newHistory);
         return NULL;
     }
-    result = strcpy_s(newHistory->player2name,GAMESTATE_MAX_PLAYERNAME_LENGTH,player2name);
+    result = strcpy_s(newHistory->player2name,USERDATA_USERNAME_MAX_LENGTH,player2name);
     if(result != 0)
     {
         free(newHistory->player1name);
