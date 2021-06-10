@@ -231,3 +231,78 @@ GAME_BOARD *decodeBoard(char *encoding) {
 
     return newBoard;
 }
+
+int drawCLIgameboard(GAME_BOARD *targetBoard) {
+    if(targetBoard == NULL || targetBoard->board == NULL)
+    {
+        return GAMEBOARD_NULL_PTR_ERROR;
+    }
+
+    if(targetBoard->size > 10)
+    {
+        return GAMEBOARD_BOARD_TOO_LARGE;
+    }
+
+    for(int index = -1; index <= targetBoard->size; index++)
+    {
+        if(index == -1)
+        {
+            printf("%c",201);
+            continue;
+        }
+
+        if(index == targetBoard->size)
+        {
+            printf("%c",187);
+            continue;
+        }
+
+        printf("%c",205);
+    }
+
+    printf("\n");
+
+    for(char rowIndex = 0; rowIndex < targetBoard->size; rowIndex++)
+    {
+        for(char columnIndex = -1; columnIndex <= targetBoard->size; columnIndex++)
+        {
+            if(columnIndex == -1 || columnIndex == targetBoard->size)
+            {
+                printf("%c",186);
+                continue;
+            }
+            switch(getCellTypeAt(targetBoard,rowIndex,columnIndex))
+            {
+                case EmptyCell:
+                    printf(" ");
+                    break;
+
+                case ZeroCell:
+                    printf("O");
+                    break;
+
+                case CrossCell:
+                    printf("X");
+                    break;
+            }
+        }
+        printf("\n");
+    }
+
+    for(int index = -1; index <= targetBoard->size; index++)
+    {
+        if(index == -1)
+        {
+            printf("%c",200);
+            continue;
+        }
+
+        if(index == targetBoard->size)
+        {
+            printf("%c",188);
+            continue;
+        }
+
+        printf("%c",205);
+    }
+}

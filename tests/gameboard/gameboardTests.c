@@ -395,6 +395,20 @@ void boardDecoderCheck()
     freeGameBoard(decodedBoard);
 }
 
+void testGameBoardDraw()
+{
+    GAME_BOARD* testBoard = initNewBoard(6);
+
+    makeMove(testBoard,3,3,CrossCell);
+    makeMove(testBoard,2,4,ZeroCell);
+    makeMove(testBoard,1,4,CrossCell);
+    makeMove(testBoard,3,1,ZeroCell);
+
+    drawCLIgameboard(testBoard);
+
+    freeGameBoard(testBoard);
+}
+
 //
 // put the test into a fixture...
 //
@@ -419,6 +433,8 @@ void test_fixture_gameboard( void )
 
     run_test(boardEncoderCheck);
     run_test(boardDecoderCheck);
+
+    run_test(testGameBoardDraw);
     test_fixture_end();
 }
 
