@@ -20,7 +20,7 @@ GAME_BOARD *initNewBoard(char size)
         return NULL;
     }
 
-    newBoard->size = size;
+    newBoard->boardSize = size;
 
     for(int i = 0; i < size*size; i++)
     {
@@ -52,7 +52,7 @@ int makeMove(GAME_BOARD *targetBoard, char row, char column, CELL_TYPE sign) {
         return GAMEBOARD_NULL_PTR_ERROR;
     }
 
-    if(row < 0 || row >= targetBoard->size || column < 0 || column >= targetBoard->size)
+    if(row < 0 || row >= targetBoard->boardSize || column < 0 || column >= targetBoard->boardSize)
     {
         return GAMEBOARD_INDEX_OUT_OF_RANGE_ERROR;
     }
@@ -72,7 +72,7 @@ int makeMove(GAME_BOARD *targetBoard, char row, char column, CELL_TYPE sign) {
         return  GAMEBOARD_INVALID_MOVE_CELL_OCCUPIED_ERROR;
     }
 
-    targetBoard->board[row*targetBoard->size + column] = sign;
+    targetBoard->board[row*targetBoard->boardSize + column] = sign;
 
     return GAMEBOARD_SUCCESS;
 }
@@ -83,12 +83,12 @@ CELL_TYPE getCellTypeAt(GAME_BOARD *targetBoard, char row, char column) {
         return GAMEBOARD_NULL_PTR_ERROR;
     }
 
-    if(row < 0 || row >= targetBoard->size || column < 0 || column >= targetBoard->size)
+    if(row < 0 || row >= targetBoard->boardSize || column < 0 || column >= targetBoard->boardSize)
     {
         return GAMEBOARD_INDEX_OUT_OF_RANGE_ERROR;
     }
 
-    return targetBoard->board[row*targetBoard->size + column];
+    return targetBoard->board[row*targetBoard->boardSize + column];
 }
 
 int checkBoardWinConditions(GAME_BOARD *targetBoard) {
@@ -98,7 +98,7 @@ int checkBoardWinConditions(GAME_BOARD *targetBoard) {
     }
 
     //Check rows
-    for (char rowIndex = 0; rowIndex < targetBoard->size; rowIndex++)
+    for (char rowIndex = 0; rowIndex < targetBoard->boardSize; rowIndex++)
     {
         CELL_TYPE currentRowCellType = getCellTypeAt(targetBoard, rowIndex,0);
         if(currentRowCellType == EmptyCell)
@@ -106,7 +106,7 @@ int checkBoardWinConditions(GAME_BOARD *targetBoard) {
             continue; //Skip known non-winning rows
         }
 
-        for (char columnIndex = 0; columnIndex < targetBoard->size; columnIndex++)
+        for (char columnIndex = 0; columnIndex < targetBoard->boardSize; columnIndex++)
         {
             if(getCellTypeAt(targetBoard,rowIndex,columnIndex) != currentRowCellType)
             {
@@ -114,7 +114,7 @@ int checkBoardWinConditions(GAME_BOARD *targetBoard) {
             }
 
             //If we got to last cell in row without encountering other symbols, row is filled,
-            if(columnIndex == targetBoard->size - 1)
+            if(columnIndex == targetBoard->boardSize - 1)
             {
                 return currentRowCellType;
             }
@@ -122,7 +122,7 @@ int checkBoardWinConditions(GAME_BOARD *targetBoard) {
     }
 
     //Check columns
-    for (char columnIndex = 0; columnIndex < targetBoard->size; columnIndex++)
+    for (char columnIndex = 0; columnIndex < targetBoard->boardSize; columnIndex++)
     {
         CELL_TYPE currentColumnCellType = getCellTypeAt(targetBoard,0,columnIndex);
         if(currentColumnCellType == EmptyCell)
@@ -130,7 +130,7 @@ int checkBoardWinConditions(GAME_BOARD *targetBoard) {
             continue; //Skip known non-winning columns
         }
 
-        for (char rowIndex = 0; rowIndex < targetBoard->size; rowIndex++)
+        for (char rowIndex = 0; rowIndex < targetBoard->boardSize; rowIndex++)
         {
             if(getCellTypeAt(targetBoard,rowIndex,columnIndex) != currentColumnCellType)
             {
@@ -138,7 +138,7 @@ int checkBoardWinConditions(GAME_BOARD *targetBoard) {
             }
 
             //If we got to last cell in column without encountering other symbols, column is filled,
-            if(rowIndex == targetBoard->size - 1)
+            if(rowIndex == targetBoard->boardSize - 1)
             {
                 return currentColumnCellType;
             }
@@ -147,16 +147,16 @@ int checkBoardWinConditions(GAME_BOARD *targetBoard) {
 
     //If no wins found, check diagonals
     CELL_TYPE ULCellType = getCellTypeAt(targetBoard,0,0); //Upper left corner cell
-    CELL_TYPE BLCellType = getCellTypeAt(targetBoard,targetBoard->size-1,0);//Bottom left corner cell
+    CELL_TYPE BLCellType = getCellTypeAt(targetBoard, targetBoard->boardSize - 1, 0);//Bottom left corner cell
 
     if(ULCellType != EmptyCell) {
         //Go through main diagonal
-        for (char index = 0; index < targetBoard->size; index++) {
+        for (char index = 0; index < targetBoard->boardSize; index++) {
             if (getCellTypeAt(targetBoard, index, index) != ULCellType) {
                 break;
             }
 
-            if (index == targetBoard->size - 1) {
+            if (index == targetBoard->boardSize - 1) {
                 return ULCellType;
             }
         }
@@ -164,13 +164,13 @@ int checkBoardWinConditions(GAME_BOARD *targetBoard) {
 
     if(BLCellType != EmptyCell) {
         //Go through antidiagonal
-        for (char index = 0; index < targetBoard->size; index++) {
-            //Columns keep going right to left, but rows go from bottom to top, so they are size-index-1
-            if (getCellTypeAt(targetBoard, targetBoard->size - 1 - index, index) != BLCellType) {
+        for (char index = 0; index < targetBoard->boardSize; index++) {
+            //Columns keep going right to left, but rows go from bottom to top, so they are boardSize-index-1
+            if (getCellTypeAt(targetBoard, targetBoard->boardSize - 1 - index, index) != BLCellType) {
                 break;
             }
 
-            if (index == targetBoard->size - 1) {
+            if (index == targetBoard->boardSize - 1) {
                 return BLCellType;
             }
         }
@@ -185,14 +185,14 @@ char *encodeBoard(GAME_BOARD *targetBoard) {
         return NULL;
     }
 
-    int boardEncodingLength = targetBoard->size * targetBoard->size;
+    int boardEncodingLength = targetBoard->boardSize * targetBoard->boardSize;
 
     char* sendBuffer = calloc(boardEncodingLength + 2,sizeof(char));
     if(sendBuffer == NULL)
     {
         return NULL;
     }
-    sendBuffer[0] = targetBoard->size;
+    sendBuffer[0] = targetBoard->boardSize;
     int result = memcpy_s(sendBuffer+1,boardEncodingLength,targetBoard->board,boardEncodingLength);
     if(result != 0)
     {
