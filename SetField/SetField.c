@@ -90,3 +90,12 @@ void clearWindow()
 {
     system("cls");
 }
+
+void printStrAtConsolePos(HANDLE hwd, short x, short y, char* str)
+{
+    COORD pos;
+    pos.X = x;
+    pos.Y = y;
+    SetConsoleCursorPosition(hwd, pos);
+    WriteConsole(hwd, str, strlen(str), 0, 0);
+}

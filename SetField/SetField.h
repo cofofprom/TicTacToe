@@ -26,4 +26,7 @@ void createField(int size_x, int size_y);
 
 void clearWindow();
 
+// function prints str at the specified (x, y) pos of the console hwd
+void printStrAtConsolePos(HANDLE hwd, short x, short y, char* str);
+
 #endif //TESTWINDOW_SETFIELD_H
