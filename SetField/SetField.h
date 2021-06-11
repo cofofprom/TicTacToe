@@ -11,8 +11,19 @@
 #define WINDOW_SHIFT_Y 250
 #define WINDOW_WIDTH   200
 #define WINDOW_HEIGHT  200
+
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #define max(a, b) (((a) > (b)) ? (a) : (b))
+
+#define bool int
+#define true 1
+#define false 0
+
+#define LEFT_UPPER_ANGLE_OF_FIELD_X 25
+#define LEFT_UPPER_ANGLE_OF_FIELD_Y 0
+
+#define BLACK_ON_WHITE 240
+#define FULL_WHITE 255
 
 HWND makeWindow();
 
@@ -20,17 +31,14 @@ int findWidthOfWindow();
 
 int findHeightOfWindow();
 
-void alignField(int width, int height);
+void createField(HWND ConsoleHandle, int size_x, int size_y);
 
-void createField(int size_x, int size_y);
+void printStrAtConsolePos(HANDLE hwd, int x, int y, char* str, WORD attr);
 
-void clearWindow();
+void clearWindow(HWND ConsoleHandle);
 
-/* function prints str at the specified (x, y) pos of the console hwd with color
- * color is combination of FOREGROUND_RED, FOREGROUND_GREEN, FOREGROUND_BLUE or
- * BACKGROUND_RED, BACKGROUND_GREEN, BACKGROUND_BLUE
- * Example: FOREGROUND_RED | FOREGROUND_BLUE stands for purple
-*/
-void printStrAtConsolePos(HANDLE hwd, short x, short y, char* str, WORD color);
+void moveCursor(HWND hWnd, int x, int y);
+
+void showConsoleCursor(bool showFlag);
 
 #endif //TESTWINDOW_SETFIELD_H
