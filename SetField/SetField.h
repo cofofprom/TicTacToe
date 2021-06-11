@@ -31,14 +31,20 @@ int findWidthOfWindow();
 
 int findHeightOfWindow();
 
-void createField(HWND ConsoleHandle, int size_x, int size_y);
-
 void printStrAtConsolePos(HANDLE hwd, int x, int y, char* str, WORD attr);
+
+void createField(HWND ConsoleHandle, int size_x, int size_y);
 
 void clearWindow(HWND ConsoleHandle);
 
 void moveCursor(HWND hWnd, int x, int y);
 
 void showConsoleCursor(bool showFlag);
+
+void drawCross(HWND ConsoleHandle, int size_x, int size_y, int x, int y);
+
+void drawCircle(HWND ConsoleHandle, int size_x, int size_y, int x, int y);
+
+int newMotion(int Turn, HWND ConsoleHandle, int size_x, int size_y, int x, int y);
 
 #endif //TESTWINDOW_SETFIELD_H
