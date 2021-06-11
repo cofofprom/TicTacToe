@@ -12,12 +12,11 @@ HWND makeWindow()
     return hwnd;                                                                //Возвращаем дескриптор окна
 }
 
-int findWidthOfWindow()                             //Найдём ширину окна (сколько символов помещается по горизонтали)
+int findWidthOfWindow()                                                         //Найдём ширину окна (сколько символов помещается по горизонтали)
 {
-    HWND hWndConsole;                               //Дескриптор окна
+    HWND hWndConsole;                                                           //Дескриптор окна
     int Width = 0;
-
-    if (hWndConsole = GetStdHandle(STD_ERROR_HANDLE))//возвращает 1 если дескиптор получен без ошибок, иначе 0
+    if (hWndConsole = GetStdHandle(STD_ERROR_HANDLE))                           //возвращает 1 если дескиптор получен без ошибок, иначе 0
     {
         CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
         if (GetConsoleScreenBufferInfo(hWndConsole, &consoleInfo))
@@ -28,7 +27,7 @@ int findWidthOfWindow()                             //Найдём ширину 
     return Width;
 }
 
-int findHeightOfWindow()                            //Найдём высоту окна (сколько символов помещается по вертикали)
+int findHeightOfWindow()                                                        //Найдём высоту окна (сколько символов помещается по вертикали)
 {
     HWND hWndConsole;
     int Height = 0;
@@ -43,55 +42,30 @@ int findHeightOfWindow()                            //Найдём высоту 
     return Height;
 }
 
-void alignField(int width, int height)
+void createField(HWND ConsoleHandle, int size_x, int size_y)                    //Создание поля во всё окно
 {
-    int WidthOfCell = min(width / 3, (height - 1) / 3);
-    for (int SpaceIndx = 0; SpaceIndx < (width - WidthOfCell * 3 * 2) / 2; SpaceIndx++)
+    int Divisor_x = size_x / 3, Divisor_y = (size_y - 1) / 3, CommonDivisor = min(Divisor_x, Divisor_y) + Divisor_x / 3;
+    char *FillLine = (char *) calloc(Divisor_x * 3 + 1, 1);
+    for (int i = 0; i < CommonDivisor * 3; i++) FillLine[i] = '_';
+    printStrAtConsolePos(ConsoleHandle, LEFT_UPPER_ANGLE_OF_FIELD_X, LEFT_UPPER_ANGLE_OF_FIELD_Y, FillLine, BLACK_ON_WHITE);
+    printStrAtConsolePos(ConsoleHandle, LEFT_UPPER_ANGLE_OF_FIELD_X, LEFT_UPPER_ANGLE_OF_FIELD_Y + Divisor_y, FillLine,BLACK_ON_WHITE);
+    printStrAtConsolePos(ConsoleHandle, LEFT_UPPER_ANGLE_OF_FIELD_X, LEFT_UPPER_ANGLE_OF_FIELD_Y + Divisor_y * 2, FillLine, BLACK_ON_WHITE);
+    printStrAtConsolePos(ConsoleHandle, LEFT_UPPER_ANGLE_OF_FIELD_X, LEFT_UPPER_ANGLE_OF_FIELD_Y + Divisor_y * 3, FillLine, BLACK_ON_WHITE);
+    for (int cnt = 0; cnt<=3; cnt++)
     {
-        printf(" ");
-    }
-}
-
-void createField(int size_x, int size_y)            //Создание поля во всё окно
-{
-    int Divisor_x = size_x / 3, Divisor_y = (size_y - 1) / 3, CommonDivisor = min(Divisor_x, Divisor_y);
-    alignField(size_x, size_y);
-    for (int y_coord = 0; y_coord <= CommonDivisor * 3; y_coord++)
-    {
-        for (int x_coord = 0; x_coord < CommonDivisor * 3; x_coord++)
+        int current_x = LEFT_UPPER_ANGLE_OF_FIELD_X + cnt*CommonDivisor;
+        for (int i = 0; i <= LEFT_UPPER_ANGLE_OF_FIELD_Y + Divisor_y * 3; i++)
         {
-            if (x_coord == CommonDivisor * 3 - 1)
+            if (i != 0)
             {
-                if (y_coord == 0 || y_coord == CommonDivisor * 3)
-                {
-                    printf("\n");
-                    alignField(size_x, size_y);
-                }
-                else
-                {
-                    printf("|\n");
-                    alignField(size_x, size_y);
-                }
+                printStrAtConsolePos(ConsoleHandle, current_x, LEFT_UPPER_ANGLE_OF_FIELD_Y + i, "|", BLACK_ON_WHITE);
             }
-            else if ((x_coord == 0 || x_coord == CommonDivisor * 3 - 1) && y_coord != 0 &&
-                     y_coord != CommonDivisor * 3)
-                printf("|");
-            else if ((y_coord == 0 || y_coord == CommonDivisor * 3) && x_coord != 0 &&
-                     x_coord != CommonDivisor * 3 - 1)
-                printf("--");
-            else if (y_coord % CommonDivisor == 0) printf("--");
-            else if (x_coord % CommonDivisor == 0) printf("| ");
-            else printf("  ");
         }
     }
+    printStrAtConsolePos(ConsoleHandle, LEFT_UPPER_ANGLE_OF_FIELD_X, LEFT_UPPER_ANGLE_OF_FIELD_Y, " ", FULL_WHITE);
 }
 
-void clearWindow()
-{
-    system("cls");
-}
-
-void printStrAtConsolePos(HANDLE hwd, short x, short y, char* str, WORD attr)
+void printStrAtConsolePos(HANDLE hwd, int x, int y, char *str, WORD attr)
 {
     COORD pos;
     pos.X = x;
@@ -100,4 +74,35 @@ void printStrAtConsolePos(HANDLE hwd, short x, short y, char* str, WORD attr)
     SetConsoleTextAttribute(hwd, attr);
     WriteConsole(hwd, str, strlen(str), 0, 0);
     //SetConsoleTextAttribute(hwd, FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN); если надо оставь, с этом оно не будет высирать следущие символы с таким же аттрибутом
+}
+
+void clearWindow(HWND ConsoleHandle)
+{
+    int WidthOfWindow = findWidthOfWindow(), HeightOfWindow = findHeightOfWindow();
+    char *FillInBreadth = (char *) calloc(WidthOfWindow + 1, 1);
+    for (int i = 0; i < WidthOfWindow; i++) FillInBreadth[i] = '_';
+    for (int i=0; i<HeightOfWindow; i++)
+    {
+        printStrAtConsolePos(ConsoleHandle, 0, i, FillInBreadth, FULL_WHITE);
+    }
+    moveCursor(ConsoleHandle, 0, 0);
+    showConsoleCursor(0);
+}
+
+void moveCursor(HWND ConsoleHandle, int x, int y)
+{
+    COORD Position;
+    Position.X = x;
+    Position.Y = y;
+    SetConsoleCursorPosition(ConsoleHandle, Position);
+}
+
+void showConsoleCursor(bool showFlag)
+{
+    HWND Handle = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_CURSOR_INFO cursorInfo;
+
+    GetConsoleCursorInfo(Handle, &cursorInfo);
+    cursorInfo.bVisible = showFlag;
+    SetConsoleCursorInfo(Handle, &cursorInfo);
 }
