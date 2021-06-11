@@ -26,7 +26,11 @@ void createField(int size_x, int size_y);
 
 void clearWindow();
 
-// function prints str at the specified (x, y) pos of the console hwd
-void printStrAtConsolePos(HANDLE hwd, short x, short y, char* str);
+/* function prints str at the specified (x, y) pos of the console hwd with color
+ * color is combination of FOREGROUND_RED, FOREGROUND_GREEN, FOREGROUND_BLUE or
+ * BACKGROUND_RED, BACKGROUND_GREEN, BACKGROUND_BLUE
+ * Example: FOREGROUND_RED | FOREGROUND_BLUE stands for purple
+*/
+void printStrAtConsolePos(HANDLE hwd, short x, short y, char* str, WORD color);
 
 #endif //TESTWINDOW_SETFIELD_H

@@ -91,11 +91,13 @@ void clearWindow()
     system("cls");
 }
 
-void printStrAtConsolePos(HANDLE hwd, short x, short y, char* str)
+void printStrAtConsolePos(HANDLE hwd, short x, short y, char* str, WORD attr)
 {
     COORD pos;
     pos.X = x;
     pos.Y = y;
     SetConsoleCursorPosition(hwd, pos);
+    SetConsoleTextAttribute(hwd, attr);
     WriteConsole(hwd, str, strlen(str), 0, 0);
+    //SetConsoleTextAttribute(hwd, FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN); если надо оставь, с этом оно не будет высирать следущие символы с таким же аттрибутом
 }
