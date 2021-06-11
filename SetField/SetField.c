@@ -42,29 +42,6 @@ int findHeightOfWindow()                                                        
     return Height;
 }
 
-void createField(HWND ConsoleHandle, int size_x, int size_y)                    //Создание поля во всё окно
-{
-    int Divisor_x = size_x / 3, Divisor_y = (size_y - 1) / 3, CommonDivisor = min(Divisor_x, Divisor_y) + Divisor_x / 3;
-    char *FillLine = (char *) calloc(Divisor_x * 3 + 1, 1);
-    for (int i = 0; i < CommonDivisor * 3; i++) FillLine[i] = '_';
-    printStrAtConsolePos(ConsoleHandle, LEFT_UPPER_ANGLE_OF_FIELD_X, LEFT_UPPER_ANGLE_OF_FIELD_Y, FillLine, BLACK_ON_WHITE);
-    printStrAtConsolePos(ConsoleHandle, LEFT_UPPER_ANGLE_OF_FIELD_X, LEFT_UPPER_ANGLE_OF_FIELD_Y + Divisor_y, FillLine,BLACK_ON_WHITE);
-    printStrAtConsolePos(ConsoleHandle, LEFT_UPPER_ANGLE_OF_FIELD_X, LEFT_UPPER_ANGLE_OF_FIELD_Y + Divisor_y * 2, FillLine, BLACK_ON_WHITE);
-    printStrAtConsolePos(ConsoleHandle, LEFT_UPPER_ANGLE_OF_FIELD_X, LEFT_UPPER_ANGLE_OF_FIELD_Y + Divisor_y * 3, FillLine, BLACK_ON_WHITE);
-    for (int cnt = 0; cnt<=3; cnt++)
-    {
-        int current_x = LEFT_UPPER_ANGLE_OF_FIELD_X + cnt*CommonDivisor;
-        for (int i = 0; i <= LEFT_UPPER_ANGLE_OF_FIELD_Y + Divisor_y * 3; i++)
-        {
-            if (i != 0)
-            {
-                printStrAtConsolePos(ConsoleHandle, current_x, LEFT_UPPER_ANGLE_OF_FIELD_Y + i, "|", BLACK_ON_WHITE);
-            }
-        }
-    }
-    printStrAtConsolePos(ConsoleHandle, LEFT_UPPER_ANGLE_OF_FIELD_X, LEFT_UPPER_ANGLE_OF_FIELD_Y, " ", FULL_WHITE);
-}
-
 void printStrAtConsolePos(HANDLE hwd, int x, int y, char *str, WORD attr)
 {
     COORD pos;
@@ -76,12 +53,35 @@ void printStrAtConsolePos(HANDLE hwd, int x, int y, char *str, WORD attr)
     //SetConsoleTextAttribute(hwd, FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN); если надо оставь, с этом оно не будет высирать следущие символы с таким же аттрибутом
 }
 
+void createField(HWND ConsoleHandle, int size_x, int size_y)                    //Создание поля во всё окно
+{
+    int Divisor_x = size_x / 3, Divisor_y = (size_y - 1) / 3, CommonDivisor = min(Divisor_x, Divisor_y) + Divisor_x / 3;
+    char *FillLine = (char *) calloc(Divisor_x * 3 + 1, 1);
+    for (int i = 0; i < CommonDivisor * 3; i++) FillLine[i] = '_';
+    printStrAtConsolePos(ConsoleHandle, LEFT_UPPER_ANGLE_OF_FIELD_X, LEFT_UPPER_ANGLE_OF_FIELD_Y, FillLine, BLACK_ON_WHITE);
+    printStrAtConsolePos(ConsoleHandle, LEFT_UPPER_ANGLE_OF_FIELD_X, LEFT_UPPER_ANGLE_OF_FIELD_Y + Divisor_y, FillLine, BLACK_ON_WHITE);
+    printStrAtConsolePos(ConsoleHandle, LEFT_UPPER_ANGLE_OF_FIELD_X, LEFT_UPPER_ANGLE_OF_FIELD_Y + Divisor_y * 2, FillLine, BLACK_ON_WHITE);
+    printStrAtConsolePos(ConsoleHandle, LEFT_UPPER_ANGLE_OF_FIELD_X, LEFT_UPPER_ANGLE_OF_FIELD_Y + Divisor_y * 3, FillLine, BLACK_ON_WHITE);
+    for (int cnt = 0; cnt <= 3; cnt++)
+    {
+        int current_x = LEFT_UPPER_ANGLE_OF_FIELD_X + cnt * CommonDivisor;
+        for (int i = 0; i <= LEFT_UPPER_ANGLE_OF_FIELD_Y + Divisor_y * 3; i++)
+        {
+            if (i != 0)
+            {
+                printStrAtConsolePos(ConsoleHandle, current_x, LEFT_UPPER_ANGLE_OF_FIELD_Y + i, "|", BLACK_ON_WHITE);
+            }
+        }
+    }
+    printStrAtConsolePos(ConsoleHandle, LEFT_UPPER_ANGLE_OF_FIELD_X, LEFT_UPPER_ANGLE_OF_FIELD_Y, " ", FULL_WHITE);
+}
+
 void clearWindow(HWND ConsoleHandle)
 {
     int WidthOfWindow = findWidthOfWindow(), HeightOfWindow = findHeightOfWindow();
     char *FillInBreadth = (char *) calloc(WidthOfWindow + 1, 1);
     for (int i = 0; i < WidthOfWindow; i++) FillInBreadth[i] = '_';
-    for (int i=0; i<HeightOfWindow; i++)
+    for (int i = 0; i < HeightOfWindow; i++)
     {
         printStrAtConsolePos(ConsoleHandle, 0, i, FillInBreadth, FULL_WHITE);
     }
@@ -106,3 +106,31 @@ void showConsoleCursor(bool showFlag)
     cursorInfo.bVisible = showFlag;
     SetConsoleCursorInfo(Handle, &cursorInfo);
 }
+
+void drawCross(HWND ConsoleHandle, int size_x, int size_y, int x, int y)
+{
+    int Divisor_x = size_x / 3, Divisor_y = (size_y - 1) / 3 + 2, CommonDivisor = min(Divisor_x, Divisor_y) + Divisor_x / 3;
+    int current_x = LEFT_UPPER_ANGLE_OF_FIELD_X + CommonDivisor / 2 + CommonDivisor * (x - 1) - (3 + x + (x - 1) * 0.5), current_y =
+            LEFT_UPPER_ANGLE_OF_FIELD_Y + Divisor_y / 2 + Divisor_y * (y - 1) - (y);
+    if (y < 2) current_y += Divisor_y / 6;
+    if (y > 2) current_y -= Divisor_y / 6;
+    printStrAtConsolePos(ConsoleHandle, current_x, current_y - 3, "\\     /", BLACK_ON_WHITE);
+    printStrAtConsolePos(ConsoleHandle, current_x, current_y - 2, " \\   / ", BLACK_ON_WHITE);
+    printStrAtConsolePos(ConsoleHandle, current_x, current_y - 1, "  \\ /  ", BLACK_ON_WHITE);
+    printStrAtConsolePos(ConsoleHandle, current_x, current_y, "   X   ", BLACK_ON_WHITE);
+    printStrAtConsolePos(ConsoleHandle, current_x, current_y + 1, "  / \\  ", BLACK_ON_WHITE);
+    printStrAtConsolePos(ConsoleHandle, current_x, current_y + 2, " /   \\ ", BLACK_ON_WHITE);
+    printStrAtConsolePos(ConsoleHandle, current_x, current_y + 3, "/     \\", BLACK_ON_WHITE);
+}
+
+void drawCircle(HWND ConsoleHandle, int size_x, int size_y, int x, int y)
+{
+    //Это Ваня сделает
+}
+
+int newMotion(int Turn, HWND ConsoleHandle, int size_x, int size_y, int x, int y)
+{
+    //Рисуем крестик или нолик в зависимости от того, чья сейчас очередь
+}
+
+
