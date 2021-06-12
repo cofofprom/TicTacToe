@@ -1,5 +1,5 @@
-#ifndef TESTWINDOW_SETFIELD_H
-#define TESTWINDOW_SETFIELD_H
+#ifndef TICTACTOE_SETFIELD_H
+#define TICTACTOE_SETFIELD_H
 
 #include <stdio.h>
 #include <string.h>
@@ -25,26 +25,26 @@
 #define BLACK_ON_WHITE 240
 #define FULL_WHITE 255
 
-HWND makeWindow();
+HWND makeWindow();                                                                //Инициализация окна, получение дескриптора
 
-int findWidthOfWindow();
+int findWidthOfWindow();                                                          //Ширина окна
 
-int findHeightOfWindow();
+int findHeightOfWindow();                                                         //Высота окна
 
-void printStrAtConsolePos(HANDLE hwd, int x, int y, char* str, WORD attr);
+void printStrAtConsolePos(HANDLE hwd, int x, int y, char* str, WORD attr);        //Печать указателя на строку, начиная с определённых координат (x, y)
 
-void createField(HWND ConsoleHandle, int size_x, int size_y);
+void createField(HWND ConsoleHandle, int size_x, int size_y);                     //Вывод игрового поля 3x3
 
-void clearWindow(HWND ConsoleHandle);
+void clearWindow(HWND ConsoleHandle);                                             //Очистка экрана
 
-void moveCursor(HWND hWnd, int x, int y);
+void moveCursor(HWND hWnd, int x, int y);                                         //Перемещение курсора в указанные координаты (x, y)
 
-void showConsoleCursor(bool showFlag);
+void showConsoleCursor(bool showFlag);                                            //Видимость курсора в консоли (1 - виден, 0 - не виден)
 
-void drawCross(HWND ConsoleHandle, int size_x, int size_y, int x, int y);
+void drawCross(HWND ConsoleHandle, int size_x, int size_y, int x, int y);         //Рисование крестика на поле в относительных координатах 1 <= x, y <= 3
 
-void drawCircle(HWND ConsoleHandle, int size_x, int size_y, int x, int y);
+void drawCircle(HWND ConsoleHandle, int size_x, int size_y, int x, int y);        //Рисование нолика на поле в относительных координатах 1 <= x, y <= 3
 
-int newMotion(int Turn, HWND ConsoleHandle, int size_x, int size_y, int x, int y);
+int newMotion(int Turn, HWND ConsoleHandle, int size_x, int size_y, int x, int y);//Рисует крестик или нолик в зависимости от того, кто сейчас ходит
 
-#endif //TESTWINDOW_SETFIELD_H
+#endif //TICTACTOE_SETFIELD_H

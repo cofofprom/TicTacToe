@@ -53,7 +53,8 @@ void printStrAtConsolePos(HANDLE hwd, int x, int y, char *str, WORD attr)
     //SetConsoleTextAttribute(hwd, FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN); если надо оставь, с этом оно не будет высирать следущие символы с таким же аттрибутом
 }
 
-void createField(HWND ConsoleHandle, int size_x, int size_y)                    //Создание поля во всё окно
+//createField рисует игровое поле по середине консоли и делает клетки поля квадратными, длины сторон зависят от размеров окна
+void createField(HWND ConsoleHandle, int size_x, int size_y)
 {
     int Divisor_x = size_x / 3, Divisor_y = (size_y - 1) / 3, CommonDivisor = min(Divisor_x, Divisor_y) + Divisor_x / 3;
     char *FillLine = (char *) calloc(Divisor_x * 3 + 1, 1);
@@ -76,11 +77,12 @@ void createField(HWND ConsoleHandle, int size_x, int size_y)                    
     printStrAtConsolePos(ConsoleHandle, LEFT_UPPER_ANGLE_OF_FIELD_X, LEFT_UPPER_ANGLE_OF_FIELD_Y, " ", FULL_WHITE);
 }
 
+//Очищает консоль, закрашивая её полностью в фоновый цвет
 void clearWindow(HWND ConsoleHandle)
 {
     int WidthOfWindow = findWidthOfWindow(), HeightOfWindow = findHeightOfWindow();
     char *FillInBreadth = (char *) calloc(WidthOfWindow + 1, 1);
-    for (int i = 0; i < WidthOfWindow; i++) FillInBreadth[i] = '_';
+    for (int i = 0; i < WidthOfWindow; i++) FillInBreadth[i] = ' ';
     for (int i = 0; i < HeightOfWindow; i++)
     {
         printStrAtConsolePos(ConsoleHandle, 0, i, FillInBreadth, FULL_WHITE);
@@ -89,6 +91,8 @@ void clearWindow(HWND ConsoleHandle)
     showConsoleCursor(0);
 }
 
+//Передвигает курсор в указанные координаты. Нужно для того, чтобы после отрисовки объектов
+//консоль не скролилась вниз (после каждой операции курсор смещаем в (0, 0)).
 void moveCursor(HWND ConsoleHandle, int x, int y)
 {
     COORD Position;
@@ -97,6 +101,7 @@ void moveCursor(HWND ConsoleHandle, int x, int y)
     SetConsoleCursorPosition(ConsoleHandle, Position);
 }
 
+//Убирает курсор при необходимости. Нужно, например, для того, чтобы он не мигал после отривоки игрового поля
 void showConsoleCursor(bool showFlag)
 {
     HWND Handle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -107,6 +112,7 @@ void showConsoleCursor(bool showFlag)
     SetConsoleCursorInfo(Handle, &cursorInfo);
 }
 
+//Рисует крестик в относительных координатах 1 <= x, y <= 3 при помощи ascii символов
 void drawCross(HWND ConsoleHandle, int size_x, int size_y, int x, int y)
 {
     int Divisor_x = size_x / 3, Divisor_y = (size_y - 1) / 3 + 2, CommonDivisor = min(Divisor_x, Divisor_y) + Divisor_x / 3;
@@ -123,6 +129,7 @@ void drawCross(HWND ConsoleHandle, int size_x, int size_y, int x, int y)
     printStrAtConsolePos(ConsoleHandle, current_x, current_y + 3, "/     \\", BLACK_ON_WHITE);
 }
 
+//Рисует нолик в относительных координатах 1 <= x, y <= 3 при помощи ascii символов
 void drawCircle(HWND ConsoleHandle, int size_x, int size_y, int x, int y)
 {
     //Это Ваня сделает
