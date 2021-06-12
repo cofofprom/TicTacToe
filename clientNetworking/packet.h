@@ -7,12 +7,7 @@
 #include <malloc.h>
 #include <string.h>
 
-enum packetType { ServicePacket = 1, DataRequestPacket = 2, dataSendPacket = 3};
-enum servicePacketType {PingRequest = 1, PingResponse = 2, ErrorPacket = 3, Success = 4, UserAction = 5, EndGame = 6, NotificationPacket = 7};
-enum dataRequestPacketType {LoginRequest = 1, RequestProfileData = 2, RequestPlayerList = 3,
-    RequestGameHistory = 4, RequestPlayerMove = 5, CheckUsername = 6, CheckUserStatus = 7};
-enum dataSendPacketType {LoginData = 1, RegisterRequest = 2, ProfileData = 3, PlayerList = 4,
-    GameStateHistory = 5, PlayerMove = 6, UserStatus = 7};
+#include "packetEnums.h"
 
 typedef struct packet_struct
 {

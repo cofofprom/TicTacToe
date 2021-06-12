@@ -18,6 +18,6 @@ typedef struct client_worker_data
     int workerPort;
 }NETWORK_WORKER;
 
-NETWORK_WORKER* initNewNetworkWorker()
+NETWORK_WORKER* initNewNetworkWorker();
 
 #endif //TICTACTOE_CLIENTNETWORKWORKER_H
