@@ -131,7 +131,18 @@ void drawCross(HWND ConsoleHandle, int size_x, int size_y, int x, int y)
 //Рисует нолик в относительных координатах 1 <= x, y <= 3 при помощи ascii символов
 void drawCircle(HWND ConsoleHandle, int size_x, int size_y, int x, int y)
 {
-    //Это Ваня сделает
+    int Divisor_x = size_x / 3, Divisor_y = (size_y - 1) / 3 + 2, CommonDivisor = min(Divisor_x, Divisor_y) + Divisor_x / 3;
+    int current_x = LEFT_UPPER_ANGLE_OF_FIELD_X + CommonDivisor / 2 + CommonDivisor * (x - 1) - (3 + x + (x - 1) * 0.5), current_y =
+            LEFT_UPPER_ANGLE_OF_FIELD_Y + Divisor_y / 2 + Divisor_y * (y - 1) - (y);
+    if (y < 2) current_y += Divisor_y / 6;
+    if (y > 2) current_y -= Divisor_y / 6;
+    printStrAtConsolePos(ConsoleHandle, current_x, current_y - 3, "  /-—–\\", BLACK_ON_WHITE);
+    printStrAtConsolePos(ConsoleHandle, current_x, current_y - 2, " /    \\ ", BLACK_ON_WHITE);
+    printStrAtConsolePos(ConsoleHandle, current_x, current_y - 1, " |     | ", BLACK_ON_WHITE);
+    printStrAtConsolePos(ConsoleHandle, current_x, current_y,        " |     | ", BLACK_ON_WHITE);
+    printStrAtConsolePos(ConsoleHandle, current_x, current_y + 1, " |     |  ", BLACK_ON_WHITE);
+    printStrAtConsolePos(ConsoleHandle, current_x, current_y + 2, " \\    /", BLACK_ON_WHITE);
+    printStrAtConsolePos(ConsoleHandle, current_x, current_y + 3, " \\___/", BLACK_ON_WHITE);
 }
 
 int newMotion(int Turn, HWND WindowStdInputHandle, HWND ConsoleHandle, int size_x, int size_y, int x, int y)
