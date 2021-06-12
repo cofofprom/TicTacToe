@@ -6,7 +6,6 @@ HWND makeWindow()
     char Title[] = "TicTacToe";
     SetConsoleTitle(Title);                                                     // Устанваливаем заголовок окна консоли
     hwnd = GetStdHandle(STD_OUTPUT_HANDLE);                                     // Находим дескриптор окна
-
 //    MoveWindow(hwnd, WINDOW_SHIFT_X, WINDOW_SHIFT_Y, WINDOW_WIDTH, WINDOW_HEIGHT, TRUE);//Устанавливаем размеры и смещение окна
 
     return hwnd;                                                                //Возвращаем дескриптор окна
@@ -135,9 +134,118 @@ void drawCircle(HWND ConsoleHandle, int size_x, int size_y, int x, int y)
     //Это Ваня сделает
 }
 
-int newMotion(int Turn, HWND ConsoleHandle, int size_x, int size_y, int x, int y)
+int newMotion(int Turn, HWND WindowStdInputHandle, HWND ConsoleHandle, int size_x, int size_y, int x, int y)
 {
+    drawCross(WindowStdInputHandle, size_x, size_y, x, y);
+    return Turn;
     //Рисуем крестик или нолик в зависимости от того, чья сейчас очередь
 }
 
+COORD getTextCursorCoords()
+{
+    CONSOLE_SCREEN_BUFFER_INFO info_x;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info_x);
+    return info_x.dwCursorPosition;
+}
 
+void startGame(HWND WindowStdInputHandle, HWND ConsoleHandle)
+{
+    clearWindow(WindowStdInputHandle);
+    createField(WindowStdInputHandle, findWidthOfWindow(), findHeightOfWindow());
+    LPPOINT CursorCoordinates;
+    CursorCoordinates = malloc(sizeof(*CursorCoordinates));
+    int CellWidth = min(findWidthOfWindow() / 3, findHeightOfWindow() / 3) + findWidthOfWindow() / 9, CellHeight = findHeightOfWindow() / 3, Turn = 0;
+    while (GetKeyState(VK_ESCAPE) >= 0)
+    {
+        if (GetKeyState(VK_LBUTTON) < 0)
+        {
+            GetCursorPos(CursorCoordinates);
+            ScreenToClient(ConsoleHandle, CursorCoordinates);
+            if (CursorCoordinates[0].x < LEFT_UPPER_ANGLE_OF_FIELD_X || CursorCoordinates[0].y < LEFT_UPPER_ANGLE_OF_FIELD_Y ||
+                CursorCoordinates[0].x > LEFT_UPPER_ANGLE_OF_FIELD_X + 3 * CellWidth ||
+                CursorCoordinates[0].y > LEFT_UPPER_ANGLE_OF_FIELD_Y + 3 * CellHeight)
+            {
+                break;
+            }
+            else
+            {
+                if (CursorCoordinates[0].x >= LEFT_UPPER_ANGLE_OF_FIELD_X && CursorCoordinates[0].x <= LEFT_UPPER_ANGLE_OF_FIELD_X + CellWidth &&
+                    CursorCoordinates[0].y >= LEFT_UPPER_ANGLE_OF_FIELD_Y && CursorCoordinates[0].y <= LEFT_UPPER_ANGLE_OF_FIELD_Y + CellHeight)
+                {
+                    Turn = newMotion(Turn, WindowStdInputHandle, ConsoleHandle, findWidthOfWindow(), findHeightOfWindow(), 1, 1);
+                }
+                else if (CursorCoordinates[0].x >= LEFT_UPPER_ANGLE_OF_FIELD_X && CursorCoordinates[0].x <= LEFT_UPPER_ANGLE_OF_FIELD_X + CellWidth &&
+                         CursorCoordinates[0].y > LEFT_UPPER_ANGLE_OF_FIELD_Y + CellHeight &&
+                         CursorCoordinates[0].y <= LEFT_UPPER_ANGLE_OF_FIELD_Y + 2 * CellHeight)
+                {
+                    Turn = newMotion(Turn, WindowStdInputHandle, ConsoleHandle, findWidthOfWindow(), findHeightOfWindow(), 1, 2);
+                }
+                else if (CursorCoordinates[0].x >= LEFT_UPPER_ANGLE_OF_FIELD_X && CursorCoordinates[0].x <= LEFT_UPPER_ANGLE_OF_FIELD_X + CellWidth &&
+                         CursorCoordinates[0].y > LEFT_UPPER_ANGLE_OF_FIELD_Y + 2 * CellHeight &&
+                         CursorCoordinates[0].y <= LEFT_UPPER_ANGLE_OF_FIELD_Y + 3 * CellHeight)
+                {
+                    Turn = newMotion(Turn, WindowStdInputHandle, ConsoleHandle, findWidthOfWindow(), findHeightOfWindow(), 1, 3);
+                }
+                else if (CursorCoordinates[0].x > LEFT_UPPER_ANGLE_OF_FIELD_X + CellWidth &&
+                         CursorCoordinates[0].x <= LEFT_UPPER_ANGLE_OF_FIELD_X + 2 * CellWidth &&
+                         CursorCoordinates[0].y >= LEFT_UPPER_ANGLE_OF_FIELD_Y && CursorCoordinates[0].y <= LEFT_UPPER_ANGLE_OF_FIELD_Y + CellHeight)
+                {
+                    Turn = newMotion(Turn, WindowStdInputHandle, ConsoleHandle, findWidthOfWindow(), findHeightOfWindow(), 2, 1);
+                }
+                else if (CursorCoordinates[0].x > LEFT_UPPER_ANGLE_OF_FIELD_X + CellWidth &&
+                         CursorCoordinates[0].x <= LEFT_UPPER_ANGLE_OF_FIELD_X + 2 * CellWidth &&
+                         CursorCoordinates[0].y > LEFT_UPPER_ANGLE_OF_FIELD_Y + CellHeight &&
+                         CursorCoordinates[0].y <= LEFT_UPPER_ANGLE_OF_FIELD_Y + 2 * CellHeight)
+                {
+                    Turn = newMotion(Turn, WindowStdInputHandle, ConsoleHandle, findWidthOfWindow(), findHeightOfWindow(), 2, 2);
+                }
+                else if (CursorCoordinates[0].x > LEFT_UPPER_ANGLE_OF_FIELD_X + CellWidth &&
+                         CursorCoordinates[0].x <= LEFT_UPPER_ANGLE_OF_FIELD_X + 2 * CellWidth &&
+                         CursorCoordinates[0].y > LEFT_UPPER_ANGLE_OF_FIELD_Y + 2 * CellHeight &&
+                         CursorCoordinates[0].y <= LEFT_UPPER_ANGLE_OF_FIELD_Y + 3 * CellHeight)
+                {
+                    Turn = newMotion(Turn, WindowStdInputHandle, ConsoleHandle, findWidthOfWindow(), findHeightOfWindow(), 2, 3);
+                }
+                else if (CursorCoordinates[0].x > LEFT_UPPER_ANGLE_OF_FIELD_X + 2 * CellWidth &&
+                         CursorCoordinates[0].x <= LEFT_UPPER_ANGLE_OF_FIELD_X + 3 * CellWidth &&
+                         CursorCoordinates[0].y >= LEFT_UPPER_ANGLE_OF_FIELD_Y && CursorCoordinates[0].y <= LEFT_UPPER_ANGLE_OF_FIELD_Y + CellHeight)
+                {
+                    Turn = newMotion(Turn, WindowStdInputHandle, ConsoleHandle, findWidthOfWindow(), findHeightOfWindow(), 3, 1);
+                }
+                else if (CursorCoordinates[0].x > LEFT_UPPER_ANGLE_OF_FIELD_X + 2 * CellWidth &&
+                         CursorCoordinates[0].x <= LEFT_UPPER_ANGLE_OF_FIELD_X + 3 * CellWidth &&
+                         CursorCoordinates[0].y >= LEFT_UPPER_ANGLE_OF_FIELD_Y + CellHeight &&
+                         CursorCoordinates[0].y <= LEFT_UPPER_ANGLE_OF_FIELD_Y + 2 * CellHeight)
+                {
+                    Turn = newMotion(Turn, WindowStdInputHandle, ConsoleHandle, findWidthOfWindow(), findHeightOfWindow(), 3, 2);
+                }
+                else if (CursorCoordinates[0].x > LEFT_UPPER_ANGLE_OF_FIELD_X + 2 * CellWidth &&
+                         CursorCoordinates[0].x <= LEFT_UPPER_ANGLE_OF_FIELD_X + 3 * CellWidth &&
+                         CursorCoordinates[0].y > LEFT_UPPER_ANGLE_OF_FIELD_Y + 2 * CellHeight &&
+                         CursorCoordinates[0].y <= LEFT_UPPER_ANGLE_OF_FIELD_Y + 3 * CellHeight)
+                {
+                    Turn = newMotion(Turn, WindowStdInputHandle, ConsoleHandle, findWidthOfWindow(), findHeightOfWindow(), 3, 3);
+                }
+                else continue;
+            }
+        }
+        Sleep(100);
+    }
+}
+
+void testMouseClick(HWND WindowStdInputHandle)
+{
+    LPPOINT CursorCoordinates;
+    CursorCoordinates = malloc(sizeof(*CursorCoordinates));
+    do
+    {
+        GetCursorPos(CursorCoordinates);
+        ScreenToClient(WindowStdInputHandle, CursorCoordinates);
+        if (GetKeyState(VK_LBUTTON) < 0)
+        {
+            printf("Local Cursor Coordinates: %d, %d\n", (int)CursorCoordinates->x, (int)CursorCoordinates->y);
+        }
+        Sleep(100);
+    }
+    while (GetKeyState(VK_ESCAPE) >= 0);
+}

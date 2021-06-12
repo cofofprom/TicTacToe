@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <windows.h>
+#include <Windows.h>
 #include <conio.h>
 
 #define WINDOW_SHIFT_X 550
@@ -45,6 +45,12 @@ void drawCross(HWND ConsoleHandle, int size_x, int size_y, int x, int y);       
 
 void drawCircle(HWND ConsoleHandle, int size_x, int size_y, int x, int y);        //Рисование нолика на поле в относительных координатах 1 <= x, y <= 3
 
-int newMotion(int Turn, HWND ConsoleHandle, int size_x, int size_y, int x, int y);//Рисует крестик или нолик в зависимости от того, кто сейчас ходит
+int newMotion(int Turn, HWND WindowStdInputHandle, HWND ConsoleHandle, int size_x, int size_y, int x, int y);//Рисует крестик или нолик в зависимости от того, кто сейчас ходит
+
+COORD getTextCursorCoords();
+
+void startGame(HWND WindowStdInputHandle, HWND ConsoleHandle);                                           //Начинаем игру
+
+void testMouseClick(HWND WindowStdInputHandle);
 
 #endif //TICTACTOE_SETFIELD_H
