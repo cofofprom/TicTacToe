@@ -56,4 +56,6 @@ void testMouseClick(HWND WindowStdInputHandle);
 
 void resetConsole(HWND StdHandle);
 
+void checkAllFigures();
+
 #endif //TICTACTOE_SETFIELD_H

@@ -2,13 +2,16 @@
 
 HWND makeWindow()
 {
-    HWND hwnd;                                                                  //Дескриптор окна
+    HWND stdInput, stdOutput, WindowHandle;
     char Title[] = "TicTacToe";
+    COORD bufferSize = {120, 30};
     SetConsoleTitle(Title);                                                     // Устанваливаем заголовок окна консоли
-    hwnd = GetStdHandle(STD_OUTPUT_HANDLE);                                     // Находим дескриптор окна
-//    MoveWindow(hwnd, WINDOW_SHIFT_X, WINDOW_SHIFT_Y, WINDOW_WIDTH, WINDOW_HEIGHT, TRUE);//Устанавливаем размеры и смещение окна
+    stdInput = GetStdHandle(STD_OUTPUT_HANDLE);                                     // Находим дескриптор окна
+    SetConsoleScreenBufferSize(stdOutput, bufferSize);
+    WindowHandle = FindWindowA(NULL, Title);
+    MoveWindow(WindowHandle, WINDOW_SHIFT_X, WINDOW_SHIFT_Y, WINDOW_WIDTH, WINDOW_HEIGHT, TRUE);//Устанавливаем размеры и смещение окна
 
-    return hwnd;                                                                //Возвращаем дескриптор окна
+    return stdInput;                                                                //Возвращаем дескриптор окна
 }
 
 int findWidthOfWindow()                                                         //Найдём ширину окна (сколько символов помещается по горизонтали)
@@ -179,7 +182,7 @@ void startGame(HWND WindowStdInputHandle, HWND ConsoleHandle)
                 CursorCoordinates[0].x > LEFT_UPPER_ANGLE_OF_FIELD_X + 3 * CellWidth ||
                 CursorCoordinates[0].y > LEFT_UPPER_ANGLE_OF_FIELD_Y + 3 * CellHeight)
             {
-                break;
+                continue;
             }
             else
             {
@@ -275,4 +278,21 @@ void resetConsole(HWND StdHandle)
     moveCursor(StdHandle, 0, 0);
     showConsoleCursor(1);
     system("cls");
+}
+
+void checkAllFigures()
+{
+    HWND WindowStdInputHandle = makeWindow();
+    HWND ConsoleHandle = GetConsoleWindow();
+    clearWindow(WindowStdInputHandle);
+    createField(WindowStdInputHandle, findWidthOfWindow(), findHeightOfWindow());
+    int Turn = 0;
+    for (int y=1; y<=3; y++)
+    {
+        for (int x=1; x<=3; x++)
+        {
+            Turn = newMotion(Turn, WindowStdInputHandle, ConsoleHandle, findWidthOfWindow(), findHeightOfWindow(), x, y);
+            Sleep(1000);
+        }
+    }
 }
