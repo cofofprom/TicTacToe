@@ -17,6 +17,35 @@ PACKET *initPacket() {
     return newPacket;
 }
 
+PACKET *initPacketFromParams(char packetType, char packetSubtype, char packetCode, char *data) {
+    PACKET* newPacket = initPacket();
+    if(newPacket == NULL)
+    {
+        return NULL;
+    }
+
+    newPacket->packetType = packetType;
+    newPacket->packetSubtype = packetSubtype;
+    if(newPacket->packetSubtype == ServiceErrorPacket ||
+       newPacket->packetSubtype == ServiceUserAction ||
+       newPacket->packetSubtype == RequestPlayerList ||
+       newPacket->packetSubtype == ServiceNotificationPacket)
+    {
+        newPacket->packetCode = packetCode;
+    } else{
+        newPacket->packetCode = -1;
+    }
+
+    if(data != NULL)
+    {
+        int dataLength = strlen(data);
+        newPacket->packetData = calloc(dataLength + 1, sizeof(char));
+        memcpy(newPacket->packetData,data,dataLength);
+    }
+
+    return newPacket;
+}
+
 PACKET *decodePacket(char *encoding) {
     if(encoding == NULL)
     {
@@ -40,7 +69,7 @@ PACKET *decodePacket(char *encoding) {
     newPacket->packetSubtype = *currentEncodingPos;
     currentEncodingPos++;
 
-    if(newPacket->packetSubtype == ErrorPacket ||
+    if(newPacket->packetSubtype == ServiceErrorPacket ||
     newPacket->packetSubtype == ServiceUserAction ||
     newPacket->packetSubtype == RequestPlayerList ||
     newPacket->packetSubtype == ServiceNotificationPacket)
@@ -74,7 +103,7 @@ char *encodePacket(PACKET *targetPacket) {
         return NULL;
     }
 
-    char* encoding = calloc(targetPacket->packetLength+1, sizeof(char));
+    char* encoding = calloc(targetPacket->packetLength+2+1, sizeof(char));
     if(encoding == NULL)
     {
         return NULL;
@@ -83,7 +112,6 @@ char *encodePacket(PACKET *targetPacket) {
     char* currentEncodingPos = encoding;
 
     memcpy(currentEncodingPos,&targetPacket->packetLength,sizeof(short));
-
     currentEncodingPos += sizeof(short);
 
     *currentEncodingPos = targetPacket->packetType;
@@ -92,7 +120,7 @@ char *encodePacket(PACKET *targetPacket) {
     *currentEncodingPos = targetPacket->packetSubtype;
     currentEncodingPos++;
 
-    if(targetPacket->packetSubtype == ErrorPacket ||
+    if(targetPacket->packetSubtype == ServiceErrorPacket ||
        targetPacket->packetSubtype == ServiceUserAction ||
        targetPacket->packetSubtype == RequestPlayerList ||
        targetPacket->packetSubtype == ServiceNotificationPacket)
@@ -135,3 +163,23 @@ void freePacket(PACKET *targetPacket) {
 
     return;
 }
+
+void printPacketDebug(PACKET *targetPacket) {
+    if(targetPacket == NULL)
+    {
+        return;
+    }
+    printf("-----------------------------\n");
+    printf("Packet type: %d\n", targetPacket->packetType);
+    printf("Packet subtype: %d\n", targetPacket->packetSubtype);
+    printf("Packet code: %d\n", targetPacket->packetCode);
+    if(targetPacket->packetData !=  NULL)
+    {
+        printf("Packet data: %s\n",targetPacket->packetData);
+    } else{
+        printf("Packet data: None\n");
+    }
+    printf("-----------------------------\n");
+}
+
+
