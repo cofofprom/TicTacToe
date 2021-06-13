@@ -6,7 +6,7 @@ set(CMAKE_C_STANDARD 11)
 find_package(Threads REQUIRED)
 
 add_executable(TTTClient Client/client.c)
-add_executable(TTTServer Server/server.c)
+add_executable(TTTServer Server/server.c Server/utils.h Server/utils.c)
 
 target_link_libraries(TTTClient ws2_32)
 target_link_libraries(TTTClient Threads::Threads)
