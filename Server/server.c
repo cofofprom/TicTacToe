@@ -11,6 +11,8 @@
 #define SPORT 80
 #define INBUFSIZE 1024
 
+SERVERUSER_LITE* users;
+
 void* processRequest(void* arg)
 {
     SOCKET* client = (SOCKET*)arg;

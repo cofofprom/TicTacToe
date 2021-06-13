@@ -4,6 +4,7 @@
 #include "..\clientNetworking\packet.h"
 #include "..\clientNetworking\packetEnums.h"
 #include "..\userdata\userdata.h"
+#include <string.h>
 #include <winsock2.h>
 
 typedef struct {
@@ -12,6 +13,15 @@ typedef struct {
     SOCKET usersock;
     int isAuth;
 } SERVERUSER;
+
+typedef struct {
+    char* nickname;
+    char* password;
+    SOCKET usersock;
+    int isAuth;
+} SERVERUSER_LITE;
+
+char* serialize(SERVERUSER_LITE* user);
 
 PACKET* buildPacket(char type, char subtype, char code);
 

@@ -18,3 +18,17 @@ int preLoginRoutine(SOCKET* client) {
     freePacket(loginRequest);
     return send(*client, rawPacket, (int)strlen(rawPacket), 0);
 }
+
+char* serialize(SERVERUSER_LITE* user) {
+    int nicksize = strlen(user->nickname);
+    int passsize = strlen(user->password);
+    char* data = (char*)calloc(nicksize + passsize + 2, 1);
+    data[0] = (char)nicksize;
+    for(int i = 0; i < nicksize; i++) {
+        data[i + 1] = user->nickname[i];
+    }
+    for(int i = 0; i < passsize; i++) {
+        data[i + nicksize + 2] = user->password[i];
+    }
+    return data;
+}
