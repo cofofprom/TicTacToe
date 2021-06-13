@@ -22,9 +22,10 @@ typedef struct {
 } SERVERUSER_LITE;
 
 char* serialize(SERVERUSER_LITE* user);
-
-PACKET* buildPacket(char type, char subtype, char code);
+SERVERUSER_LITE* deserialize(char* user);
 
 int preLoginRoutine(SOCKET* s);
+
+int checkNickname(SERVERUSER_LITE* arr, int sz, const char* nickname);
 
 #endif //TICTACTOE_UTILS_H
