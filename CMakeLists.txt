@@ -12,3 +12,6 @@ target_link_libraries(TTTClient ws2_32)
 target_link_libraries(TTTClient Threads::Threads)
 target_link_libraries(TTTServer ws2_32)
 target_link_libraries(TTTServer Threads::Threads)
+
+#Tests
+add_executable(SetFieldTest  seatest/seatest.c seatest/seatest.h tests/SetField/SetFieldTest.c SetField/SetField.c SetField/SetField.h)

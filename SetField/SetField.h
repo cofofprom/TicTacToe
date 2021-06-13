@@ -24,33 +24,36 @@
 
 #define BLACK_ON_WHITE 240
 #define FULL_WHITE 255
+#define FULL_BLACK 0
 
-HWND makeWindow();                                                                //Инициализация окна, получение дескриптора
+HWND makeWindow();                                                            //Инициализация окна, получение дескриптора
 
-int findWidthOfWindow();                                                          //Ширина окна
+int findWidthOfWindow();                                                      //Ширина окна
 
-int findHeightOfWindow();                                                         //Высота окна
+int findHeightOfWindow();                                                     //Высота окна
 
-void printStrAtConsolePos(HANDLE hwd, int x, int y, char* str, WORD attr);        //Печать указателя на строку, начиная с определённых координат (x, y)
+void printStrAtConsolePos(HANDLE hwd, int x, int y, char* str, WORD attr);    //Печать указателя на строку, начиная с определённых координат (x, y)
 
-void createField(HWND ConsoleHandle, int size_x, int size_y);                     //Вывод игрового поля 3x3
+void createField(HWND StdHandle, int size_x, int size_y);                     //Вывод игрового поля 3x3
 
-void clearWindow(HWND ConsoleHandle);                                             //Очистка экрана
+void clearWindow(HWND StdHandle);                                             //Очистка экрана
 
-void moveCursor(HWND hWnd, int x, int y);                                         //Перемещение курсора в указанные координаты (x, y)
+void moveCursor(HWND hWnd, int x, int y);                                     //Перемещение курсора в указанные координаты (x, y)
 
-void showConsoleCursor(bool showFlag);                                            //Видимость курсора в консоли (1 - виден, 0 - не виден)
+void showConsoleCursor(bool showFlag);                                        //Видимость курсора в консоли (1 - виден, 0 - не виден)
 
-void drawCross(HWND ConsoleHandle, int size_x, int size_y, int x, int y);         //Рисование крестика на поле в относительных координатах 1 <= x, y <= 3
+void drawCross(HWND StdHandle, int size_x, int size_y, int x, int y);         //Рисование крестика на поле в относительных координатах 1 <= x, y <= 3
 
-void drawCircle(HWND ConsoleHandle, int size_x, int size_y, int x, int y);        //Рисование нолика на поле в относительных координатах 1 <= x, y <= 3
+void drawCircle(HWND StdHandle, int size_x, int size_y, int x, int y);        //Рисование нолика на поле в относительных координатах 1 <= x, y <= 3
 
 int newMotion(int Turn, HWND WindowStdInputHandle, HWND ConsoleHandle, int size_x, int size_y, int x, int y);//Рисует крестик или нолик в зависимости от того, кто сейчас ходит
 
 COORD getTextCursorCoords();
 
-void startGame(HWND WindowStdInputHandle, HWND ConsoleHandle);                                           //Начинаем игру
+void startGame(HWND WindowStdInputHandle, HWND ConsoleHandle);                //Начинаем игру
 
 void testMouseClick(HWND WindowStdInputHandle);
+
+void resetConsole(HWND StdHandle);
 
 #endif //TICTACTOE_SETFIELD_H

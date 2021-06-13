@@ -53,15 +53,15 @@ void printStrAtConsolePos(HANDLE hwd, int x, int y, char *str, WORD attr)
 }
 
 //createField рисует игровое поле по середине консоли и делает клетки поля квадратными, длины сторон зависят от размеров окна
-void createField(HWND ConsoleHandle, int size_x, int size_y)
+void createField(HWND StdHandle, int size_x, int size_y)
 {
     int Divisor_x = size_x / 3, Divisor_y = (size_y - 1) / 3, CommonDivisor = min(Divisor_x, Divisor_y) + Divisor_x / 3;
     char *FillLine = (char *) calloc(Divisor_x * 3 + 1, 1);
     for (int i = 0; i < CommonDivisor * 3; i++) FillLine[i] = '_';
-    printStrAtConsolePos(ConsoleHandle, LEFT_UPPER_ANGLE_OF_FIELD_X, LEFT_UPPER_ANGLE_OF_FIELD_Y, FillLine, BLACK_ON_WHITE);
-    printStrAtConsolePos(ConsoleHandle, LEFT_UPPER_ANGLE_OF_FIELD_X, LEFT_UPPER_ANGLE_OF_FIELD_Y + Divisor_y, FillLine, BLACK_ON_WHITE);
-    printStrAtConsolePos(ConsoleHandle, LEFT_UPPER_ANGLE_OF_FIELD_X, LEFT_UPPER_ANGLE_OF_FIELD_Y + Divisor_y * 2, FillLine, BLACK_ON_WHITE);
-    printStrAtConsolePos(ConsoleHandle, LEFT_UPPER_ANGLE_OF_FIELD_X, LEFT_UPPER_ANGLE_OF_FIELD_Y + Divisor_y * 3, FillLine, BLACK_ON_WHITE);
+    printStrAtConsolePos(StdHandle, LEFT_UPPER_ANGLE_OF_FIELD_X, LEFT_UPPER_ANGLE_OF_FIELD_Y, FillLine, BLACK_ON_WHITE);
+    printStrAtConsolePos(StdHandle, LEFT_UPPER_ANGLE_OF_FIELD_X, LEFT_UPPER_ANGLE_OF_FIELD_Y + Divisor_y, FillLine, BLACK_ON_WHITE);
+    printStrAtConsolePos(StdHandle, LEFT_UPPER_ANGLE_OF_FIELD_X, LEFT_UPPER_ANGLE_OF_FIELD_Y + Divisor_y * 2, FillLine, BLACK_ON_WHITE);
+    printStrAtConsolePos(StdHandle, LEFT_UPPER_ANGLE_OF_FIELD_X, LEFT_UPPER_ANGLE_OF_FIELD_Y + Divisor_y * 3, FillLine, BLACK_ON_WHITE);
     for (int cnt = 0; cnt <= 3; cnt++)
     {
         int current_x = LEFT_UPPER_ANGLE_OF_FIELD_X + cnt * CommonDivisor;
@@ -69,35 +69,35 @@ void createField(HWND ConsoleHandle, int size_x, int size_y)
         {
             if (i != 0)
             {
-                printStrAtConsolePos(ConsoleHandle, current_x, LEFT_UPPER_ANGLE_OF_FIELD_Y + i, "|", BLACK_ON_WHITE);
+                printStrAtConsolePos(StdHandle, current_x, LEFT_UPPER_ANGLE_OF_FIELD_Y + i, "|", BLACK_ON_WHITE);
             }
         }
     }
-    printStrAtConsolePos(ConsoleHandle, LEFT_UPPER_ANGLE_OF_FIELD_X, LEFT_UPPER_ANGLE_OF_FIELD_Y, " ", FULL_WHITE);
+    printStrAtConsolePos(StdHandle, LEFT_UPPER_ANGLE_OF_FIELD_X, LEFT_UPPER_ANGLE_OF_FIELD_Y, " ", FULL_WHITE);
 }
 
 //Очищает консоль, закрашивая её полностью в фоновый цвет
-void clearWindow(HWND ConsoleHandle)
+void clearWindow(HWND StdHandle)
 {
     int WidthOfWindow = findWidthOfWindow(), HeightOfWindow = findHeightOfWindow();
     char *FillInBreadth = (char *) calloc(WidthOfWindow + 1, 1);
     for (int i = 0; i < WidthOfWindow; i++) FillInBreadth[i] = ' ';
     for (int i = 0; i < HeightOfWindow; i++)
     {
-        printStrAtConsolePos(ConsoleHandle, 0, i, FillInBreadth, FULL_WHITE);
+        printStrAtConsolePos(StdHandle, 0, i, FillInBreadth, FULL_WHITE);
     }
-    moveCursor(ConsoleHandle, 0, 0);
+    moveCursor(StdHandle, 0, 0);
     showConsoleCursor(0);
 }
 
 //Передвигает курсор в указанные координаты. Нужно для того, чтобы после отрисовки объектов
 //консоль не скролилась вниз (после каждой операции курсор смещаем в (0, 0)).
-void moveCursor(HWND ConsoleHandle, int x, int y)
+void moveCursor(HWND StdHandle, int x, int y)
 {
     COORD Position;
     Position.X = x;
     Position.Y = y;
-    SetConsoleCursorPosition(ConsoleHandle, Position);
+    SetConsoleCursorPosition(StdHandle, Position);
 }
 
 //Убирает курсор при необходимости. Нужно, например, для того, чтобы он не мигал после отривоки игрового поля
@@ -112,33 +112,47 @@ void showConsoleCursor(bool showFlag)
 }
 
 //Рисует крестик в относительных координатах 1 <= x, y <= 3 при помощи ascii символов
-void drawCross(HWND ConsoleHandle, int size_x, int size_y, int x, int y)
+void drawCross(HWND StdHandle, int size_x, int size_y, int x, int y)
 {
     int Divisor_x = size_x / 3, Divisor_y = (size_y - 1) / 3 + 2, CommonDivisor = min(Divisor_x, Divisor_y) + Divisor_x / 3;
     int current_x = LEFT_UPPER_ANGLE_OF_FIELD_X + CommonDivisor / 2 + CommonDivisor * (x - 1) - (3 + x + (x - 1) * 0.5), current_y =
             LEFT_UPPER_ANGLE_OF_FIELD_Y + Divisor_y / 2 + Divisor_y * (y - 1) - (y);
     if (y < 2) current_y += Divisor_y / 6;
     if (y > 2) current_y -= Divisor_y / 6;
-    printStrAtConsolePos(ConsoleHandle, current_x, current_y - 3, "\\     /", BLACK_ON_WHITE);
-    printStrAtConsolePos(ConsoleHandle, current_x, current_y - 2, " \\   / ", BLACK_ON_WHITE);
-    printStrAtConsolePos(ConsoleHandle, current_x, current_y - 1, "  \\ /  ", BLACK_ON_WHITE);
-    printStrAtConsolePos(ConsoleHandle, current_x, current_y, "   X   ", BLACK_ON_WHITE);
-    printStrAtConsolePos(ConsoleHandle, current_x, current_y + 1, "  / \\  ", BLACK_ON_WHITE);
-    printStrAtConsolePos(ConsoleHandle, current_x, current_y + 2, " /   \\ ", BLACK_ON_WHITE);
-    printStrAtConsolePos(ConsoleHandle, current_x, current_y + 3, "/     \\", BLACK_ON_WHITE);
+    if (x > 2) current_x--;
+    printStrAtConsolePos(StdHandle, current_x, current_y - 3, "\\     /", BLACK_ON_WHITE);
+    printStrAtConsolePos(StdHandle, current_x, current_y - 2, " \\   / ", BLACK_ON_WHITE);
+    printStrAtConsolePos(StdHandle, current_x, current_y - 1, "  \\ /  ", BLACK_ON_WHITE);
+    printStrAtConsolePos(StdHandle, current_x, current_y, "   X   ", BLACK_ON_WHITE);
+    printStrAtConsolePos(StdHandle, current_x, current_y + 1, "  / \\  ", BLACK_ON_WHITE);
+    printStrAtConsolePos(StdHandle, current_x, current_y + 2, " /   \\ ", BLACK_ON_WHITE);
+    printStrAtConsolePos(StdHandle, current_x, current_y + 3, "/     \\", BLACK_ON_WHITE);
 }
 
 //Рисует нолик в относительных координатах 1 <= x, y <= 3 при помощи ascii символов
-void drawCircle(HWND ConsoleHandle, int size_x, int size_y, int x, int y)
+void drawCircle(HWND StdHandle, int size_x, int size_y, int x, int y)
 {
-    //Это Ваня сделает
+    int Divisor_x = size_x / 3, Divisor_y = (size_y - 1) / 3 + 2, CommonDivisor = min(Divisor_x, Divisor_y) + Divisor_x / 3;
+    int current_x = LEFT_UPPER_ANGLE_OF_FIELD_X + CommonDivisor / 2 + CommonDivisor * (x - 1) - (3 + x + (x - 1) * 0.5), current_y =
+            LEFT_UPPER_ANGLE_OF_FIELD_Y + Divisor_y / 2 + Divisor_y * (y - 1) - (y);
+    if (y < 2) current_y += Divisor_y / 6;
+    if (y > 2) current_y -= Divisor_y / 6;
+    if (x > 2) current_x--;
+    printStrAtConsolePos(StdHandle, current_x, current_y - 3, "  ____  ", BLACK_ON_WHITE);
+    printStrAtConsolePos(StdHandle, current_x, current_y - 2, " /    \\ ", BLACK_ON_WHITE);
+    printStrAtConsolePos(StdHandle, current_x, current_y - 1, "|      |", BLACK_ON_WHITE);
+    printStrAtConsolePos(StdHandle, current_x, current_y, "|      |", BLACK_ON_WHITE);
+    printStrAtConsolePos(StdHandle, current_x, current_y + 1, "|      |", BLACK_ON_WHITE);
+    printStrAtConsolePos(StdHandle, current_x, current_y + 2, " \\____/ ", BLACK_ON_WHITE);
 }
 
+//Рисуем крестик или нолик в зависимости от того, чья сейчас очередь
 int newMotion(int Turn, HWND WindowStdInputHandle, HWND ConsoleHandle, int size_x, int size_y, int x, int y)
 {
-    drawCross(WindowStdInputHandle, size_x, size_y, x, y);
-    return Turn;
-    //Рисуем крестик или нолик в зависимости от того, чья сейчас очередь
+    if (Turn) drawCircle(WindowStdInputHandle, size_x, size_y, x, y);
+    else drawCross(WindowStdInputHandle, size_x, size_y, x, y);
+    Turn++;
+    return Turn % 2;
 }
 
 COORD getTextCursorCoords()
@@ -243,9 +257,22 @@ void testMouseClick(HWND WindowStdInputHandle)
         ScreenToClient(WindowStdInputHandle, CursorCoordinates);
         if (GetKeyState(VK_LBUTTON) < 0)
         {
-            printf("Local Cursor Coordinates: %d, %d\n", (int)CursorCoordinates->x, (int)CursorCoordinates->y);
+            printf("Local Cursor Coordinates: %d, %d\n", (int) CursorCoordinates->x, (int) CursorCoordinates->y);
         }
         Sleep(100);
+    } while (GetKeyState(VK_ESCAPE) >= 0);
+}
+
+void resetConsole(HWND StdHandle)
+{
+    int WidthOfWindow = findWidthOfWindow(), HeightOfWindow = findHeightOfWindow();
+    char *FillInBreadth = (char *) calloc(WidthOfWindow + 1, 1);
+    for (int i = 0; i < WidthOfWindow; i++) FillInBreadth[i] = ' ';
+    for (int i = 0; i < HeightOfWindow; i++)
+    {
+        printStrAtConsolePos(StdHandle, 0, i, FillInBreadth, FULL_BLACK);
     }
-    while (GetKeyState(VK_ESCAPE) >= 0);
+    moveCursor(StdHandle, 0, 0);
+    showConsoleCursor(1);
+    system("cls");
 }
