@@ -74,7 +74,7 @@ char *encodePacket(PACKET *targetPacket) {
         return NULL;
     }
 
-    char* encoding = calloc(targetPacket->packetLength+1, sizeof(char));
+    char* encoding = calloc(targetPacket->packetLength+2+1, sizeof(char));
     if(encoding == NULL)
     {
         return NULL;
@@ -83,7 +83,6 @@ char *encodePacket(PACKET *targetPacket) {
     char* currentEncodingPos = encoding;
 
     memcpy(currentEncodingPos,&targetPacket->packetLength,sizeof(short));
-
     currentEncodingPos += sizeof(short);
 
     *currentEncodingPos = targetPacket->packetType;
