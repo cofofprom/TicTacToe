@@ -26,6 +26,9 @@ void testPacketEncoding()
     assert_int_equal(newPacket->packetType,decodedPacket->packetType);
     assert_n_array_equal(newPacket->packetData,decodedPacket->packetData,5);
 
+    printPacketDebug(newPacket);
+    printPacketDebug(decodedPacket);
+
     freePacket(newPacket);
     freePacket(decodedPacket);
     free(encoding);

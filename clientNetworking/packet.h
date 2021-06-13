@@ -24,6 +24,17 @@ typedef struct packet_struct
 ///@retval PACKET* On success
 PACKET* initPacket();
 
+///@brief Initialize new packet from parameters
+///@details Initializes new packet. If packet subtype requires packet code, it is set
+///@warning This function does not check for packet validity
+///@param packetType Packet type to construct
+///@param packetSubtype Packet subtype to construct
+///@param packetCode Packet code to construct
+///@param data pointer to data to include, if NULL, no data is appended
+///@retval NULL On error
+///@retval PACKET* On success
+PACKET* initPacketFromParams(char packetType, char packetSubtype, char packetCode, char* data);
+
 ///@brief Decode packet from received data stream
 ///@param encoding Encoded packet. Received packet data terminated with 0, including first two bytes encoding packet length;
 ///@retval NULL On error
@@ -39,5 +50,7 @@ char* encodePacket(PACKET* targetPacket);
 ///@brief Free packet struct
 ///@param targetPacket Packet struct to be freed
 void freePacket(PACKET* targetPacket);
+
+void printPacketDebug(PACKET* targetPacket);
 
 #endif //TICTACTOE_PACKET_H
