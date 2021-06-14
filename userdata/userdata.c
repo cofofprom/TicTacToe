@@ -51,6 +51,22 @@ USER_DATA *initNamedUserData(char *username) {
     return newUserData;
 }
 
+USER_DATA *copyUserdata(USER_DATA *copiedUserdata) {
+    if(copiedUserdata == NULL)
+    {
+        return NULL;
+    }
+
+    USER_DATA* newUserData = initNamedUserData(copiedUserdata->username);
+
+    newUserData->gameCount = copiedUserdata->gameCount;
+    newUserData->lossCount = copiedUserdata->lossCount;
+    newUserData->userStatus = copiedUserdata->userStatus;
+    newUserData->winCount = copiedUserdata->winCount;
+
+    return newUserData;
+}
+
 void freeUserData(USER_DATA *targetUserData) {
     if(targetUserData == NULL)
     {
