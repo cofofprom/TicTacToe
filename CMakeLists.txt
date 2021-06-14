@@ -18,7 +18,7 @@ add_executable(gameboardTest seatest/seatest.c gameboard/gameboard.c tests/gameb
 add_executable(gamestateTest seatest/seatest.c gameboard/gameboard.c gamestate/gamestate.c gamestate/gamestate.h tests/gamestate/gamestateTests.c)
 add_executable(userdataTest seatest/seatest.c userdata/userdata.c userdata/userdata.h tests/userdata/userdataTests.c)
 add_executable(playerlistTest seatest/seatest.c tests/playerlistTests/playerlistTests.c playerlist/playerlist.c playerlist/playerlist.h userdata/userdata.c)
-add_executable(packetQueueTest seatest/seatest.c clientNetworking/packetQueue.c clientNetworking/packetQueue.h)
+add_executable(packetQueueTest seatest/seatest.c clientNetworking/packet.c clientNetworking/packetEnums.h clientNetworking/packetQueue.c clientNetworking/packetQueue.h tests/packetqueueTests/packetQueueTests.c)
 
 add_executable(clientNetworkingTest seatest/seatest.c clientNetworking/clientNetworkWorker.c clientNetworking/packet.c clientNetworking/packet.h tests/clientNetworking/clientNetworkingTests.c clientNetworking/packetEnums.h clientNetworking/packetQueue.c clientNetworking/packetQueue.h)
 target_link_libraries(clientNetworkingTest ws2_32)
