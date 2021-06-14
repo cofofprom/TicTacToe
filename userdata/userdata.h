@@ -40,6 +40,12 @@ USER_DATA* initUserData();
 ///@retval USER_DATA* On success
 USER_DATA* initNamedUserData(char* username);
 
+///@brief Makes a copy of original userdata
+///@param copiedUserdata
+///@retval NULL On error
+///@retval USER_DATA* On Success
+USER_DATA* copyUserdata(USER_DATA* copiedUserdata);
+
 ///@brief Dispose of userdata structure
 ///@param targetUserData Userdata to dispose of
 void freeUserData(USER_DATA* targetUserData);
