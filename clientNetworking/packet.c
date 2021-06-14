@@ -46,6 +46,21 @@ PACKET *initPacketFromParams(char packetType, char packetSubtype, char packetCod
     return newPacket;
 }
 
+PACKET *makePacketCopy(PACKET *copiedPacket) {
+    if(copiedPacket == NULL)
+    {
+        return NULL;
+    }
+
+    PACKET* newPacket = initPacketFromParams(copiedPacket->packetType,copiedPacket->packetSubtype,copiedPacket->packetCode,copiedPacket->packetData);
+    if(newPacket == NULL)
+    {
+        return NULL;
+    }
+
+    return newPacket;
+}
+
 PACKET *decodePacket(char *encoding) {
     if(encoding == NULL)
     {
@@ -181,5 +196,3 @@ void printPacketDebug(PACKET *targetPacket) {
     }
     printf("-----------------------------\n");
 }
-
-

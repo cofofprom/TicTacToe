@@ -35,6 +35,12 @@ PACKET* initPacket();
 ///@retval PACKET* On success
 PACKET* initPacketFromParams(char packetType, char packetSubtype, char packetCode, char* data);
 
+///@brief Makes a copy of copiedPacket
+///@param copiedPacket Packet ot copy
+///@retval NULL On error
+///@retval PACKET* on success
+PACKET* makePacketCopy(PACKET* copiedPacket);
+
 ///@brief Decode packet from received data stream
 ///@param encoding Encoded packet. Received packet data terminated with 0, including first two bytes encoding packet length;
 ///@retval NULL On error
