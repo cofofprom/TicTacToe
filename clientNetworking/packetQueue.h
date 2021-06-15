@@ -59,7 +59,7 @@ int enqueuePacket(PACKET_QUEUE* targetQueue, PACKET* targetPacket);
 ///@brief Removes packet from targeted queue
 ///@param targetQueue Queue to add packet to
 ///@param targetPacket Packet to be added to queue
-///@retval NULL If target queue
+///@retval NULL If target queue is empty or on error
 ///@retval PACKET* On success
 PACKET* dequeuePacket(PACKET_QUEUE* targetQueue);
 
