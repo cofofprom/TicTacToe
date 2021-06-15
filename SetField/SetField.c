@@ -182,7 +182,7 @@ COORD getTextCursorCoords()
 //Рисует поле, фон и считывает координаты нажатия ЛКМ
 //В зависимости от порядка нажатия рисует в нужной клетке
 //Либо крестик, либо нолик
-void startGame(HWND WindowStdInputHandle, HWND ConsoleHandle)
+void startGame(HWND WindowStdInputHandle, HWND ConsoleHandle, int (*networkingCallback)(int, int, int))
 {
     clearWindow(WindowStdInputHandle);
     createField(WindowStdInputHandle, findWidthOfWindow(), findHeightOfWindow(), BLACK_ON_WHITE);
@@ -203,44 +203,54 @@ void startGame(HWND WindowStdInputHandle, HWND ConsoleHandle)
             {
                 if (CursorCoordinates[0].x >= LEFT_1X && CursorCoordinates[0].x <= RIGHT_1X && CursorCoordinates[0].y >= TOP_1Y && CursorCoordinates[0].y <= BOTTOM_1Y)
                 {
+
+                    networkingCallback(Turn, 1, 1);
                     Turn = newMotion(Turn, WindowStdInputHandle, ConsoleHandle, findWidthOfWindow(), findHeightOfWindow(), 1, 1);
                 }
                 else if (CursorCoordinates[0].x >= LEFT_1X && CursorCoordinates[0].x <= RIGHT_1X && CursorCoordinates[0].y >= TOP_2Y &&
                          CursorCoordinates[0].y <= BOTTOM_2Y)
                 {
+                    networkingCallback(Turn, 1, 2);
                     Turn = newMotion(Turn, WindowStdInputHandle, ConsoleHandle, findWidthOfWindow(), findHeightOfWindow(), 1, 2);
                 }
                 else if (CursorCoordinates[0].x >= LEFT_1X && CursorCoordinates[0].x <= RIGHT_1X && CursorCoordinates[0].y >= TOP_3Y &&
                          CursorCoordinates[0].y <= BOTTOM_3Y)
                 {
+                    networkingCallback(Turn, 1, 3);
                     Turn = newMotion(Turn, WindowStdInputHandle, ConsoleHandle, findWidthOfWindow(), findHeightOfWindow(), 1, 3);
                 }
                 else if (CursorCoordinates[0].x >= LEFT_2X && CursorCoordinates[0].x <= RIGHT_2X && CursorCoordinates[0].y >= TOP_1Y && CursorCoordinates[0].y <= BOTTOM_1Y)
                 {
+                    networkingCallback(Turn, 2, 1);
                     Turn = newMotion(Turn, WindowStdInputHandle, ConsoleHandle, findWidthOfWindow(), findHeightOfWindow(), 2, 1);
                 }
                 else if (CursorCoordinates[0].x >= LEFT_2X && CursorCoordinates[0].x <= RIGHT_2X && CursorCoordinates[0].y >= TOP_2Y &&
                          CursorCoordinates[0].y <= BOTTOM_2Y)
                 {
+                    networkingCallback(Turn, 2, 2);
                     Turn = newMotion(Turn, WindowStdInputHandle, ConsoleHandle, findWidthOfWindow(), findHeightOfWindow(), 2, 2);
                 }
                 else if (CursorCoordinates[0].x >= LEFT_2X && CursorCoordinates[0].x <= RIGHT_2X && CursorCoordinates[0].y >= TOP_3Y &&
                          CursorCoordinates[0].y <= BOTTOM_3Y)
                 {
+                    networkingCallback(Turn, 2, 3);
                     Turn = newMotion(Turn, WindowStdInputHandle, ConsoleHandle, findWidthOfWindow(), findHeightOfWindow(), 2, 3);
                 }
                 else if (CursorCoordinates[0].x >= LEFT_3X && CursorCoordinates[0].x <= RIGHT_3X && CursorCoordinates[0].y >= TOP_1Y && CursorCoordinates[0].y <= BOTTOM_1Y)
                 {
+                    networkingCallback(Turn, 3, 1);
                     Turn = newMotion(Turn, WindowStdInputHandle, ConsoleHandle, findWidthOfWindow(), findHeightOfWindow(), 3, 1);
                 }
                 else if (CursorCoordinates[0].x >= LEFT_3X && CursorCoordinates[0].x <= RIGHT_3X && CursorCoordinates[0].y >= TOP_2Y &&
                          CursorCoordinates[0].y <= BOTTOM_2Y)
                 {
+                    networkingCallback(Turn, 3, 2);
                     Turn = newMotion(Turn, WindowStdInputHandle, ConsoleHandle, findWidthOfWindow(), findHeightOfWindow(), 3, 2);
                 }
                 else if (CursorCoordinates[0].x >= LEFT_3X && CursorCoordinates[0].x <= RIGHT_3X && CursorCoordinates[0].y >= TOP_3Y &&
                          CursorCoordinates[0].y <= BOTTOM_3Y)
                 {
+                    networkingCallback(Turn, 3, 3);
                     Turn = newMotion(Turn, WindowStdInputHandle, ConsoleHandle, findWidthOfWindow(), findHeightOfWindow(), 3, 3);
                 }
                 else continue;

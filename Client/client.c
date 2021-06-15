@@ -2,8 +2,14 @@
 #include <stdlib.h>
 #include "..\SetField\SetField.h"
 
-int main(int argc,char** argv)
+int tipoArtemsCallback(int turn, int x, int y)
 {
-    startGame(makeWindow(), GetConsoleWindow());
+    // делает с данными что хочет
     return 0;
+}
+
+int main()
+{
+    HWND StdHandle = makeWindow(), ConsoleHandle = GetConsoleWindow();
+    startGame(StdHandle, ConsoleHandle, tipoArtemsCallback);
 }

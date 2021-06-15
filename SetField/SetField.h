@@ -67,7 +67,7 @@ int newMotion(int Turn, HWND WindowStdInputHandle, HWND ConsoleHandle, int size_
 
 COORD getTextCursorCoords();                                                  //Возвращает координаты текстового курсора (в структуре COORD)
 
-void startGame(HWND WindowStdInputHandle, HWND ConsoleHandle);                //Начинаем игру
+void startGame(HWND WindowStdInputHandle, HWND ConsoleHandle, int (*networkingCallback)(int, int, int));                //Начинаем игру
 
 void testMouseClick(HWND WindowStdInputHandle);                               //Корректность считывания координат нажатия ЛКМ
 
