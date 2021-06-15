@@ -89,9 +89,11 @@ int seatest_testrunner(int argc, char** argv, seatest_void_void tests, seatest_v
 #endif
 
 #ifdef SEATEST_INTERNAL_TESTS 
+
 void seatest_simple_test_result_nolog(int passed, char* reason, const char* function, unsigned int line);
 void seatest_assert_last_passed();
 void seatest_assert_last_failed();
 void seatest_enable_logging();
 void seatest_disable_logging();
+
 #endif
