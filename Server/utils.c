@@ -60,3 +60,10 @@ int checkNickname(SERVERUSER_LITE* arr, int sz, const char* nickname) {
     }
     return okflag;
 }
+
+int findNickname(SERVERUSER_LITE* arr, int sz, const char* nick) {
+    for(int i = 0; i < sz; i++) {
+        if(!strcmp(arr[i].nickname, nick)) return i;
+    }
+    return -1;
+}

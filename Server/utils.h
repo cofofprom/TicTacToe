@@ -28,4 +28,6 @@ int preLoginRoutine(SOCKET* s);
 
 int checkNickname(SERVERUSER_LITE* arr, int sz, const char* nickname);
 
+int findNickname(SERVERUSER_LITE* arr, int sz, const char* nick);
+
 #endif //TICTACTOE_UTILS_H

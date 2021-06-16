@@ -83,6 +83,36 @@ void* processRequest(void* arg)
             // хуйня
         }
     }
+    int gameresolverflag = 1;
+    char rawDataBuf[INBUFSIZE] = { 0 };
+    while(gameresolverflag) {
+        recv(*client, rawDataBuf, INBUFSIZE, 0);
+        PACKET* leninaPaket = decodePacket(rawDataBuf);
+        if (leninaPaket->packetCode == GameRequestAction) {
+            char boardSize = leninaPaket->packetData[0];
+            char nickLen = leninaPaket->packetData[1];
+            char* nick = (char*)calloc(nickLen + 1, sizeof(char));
+            char* outdata = (char*)calloc(nickLen + 2, sizeof(char));
+            outdata[0] = boardSize;
+            outdata[1] = nickLen;
+            for(int i = 0; i < nickLen; i++) {
+                nick[i] = leninaPaket->packetData[i + 2];
+                outdata[i+2] = leninaPaket->packetData[i + 2];
+            }
+            SERVERUSER_LITE* opponent = &users[findNickname(users, usersz, nick)];
+            PACKET* serverInvite = initPacketFromParams(ServicePacket, ServiceUserAction, GameRequestAction, outdata);
+            char* rawinvite = encodePacket(serverInvite);
+            send(opponent->usersock, rawinvite, strlen(rawinvite), 0);
+            char rawRespBuf[INBUFSIZE] = { 0 };
+            recv(opponent->usersock, rawRespBuf, INBUFSIZE, 0);
+            PACKET* confirmation = decodePacket(rawRespBuf);
+            if(confirmation->packetCode == GameAcceptAction) {
+                PACKET* ok = initPacketFromParams(ServicePacket, ServiceSuccess, 0, 0);
+                char* rawok = encodePacket(ok);
+                send(*client, rawok, strlen(rawok), 0);
+            }
+        }
+    }
 }
 
 int main(int argc,char** argv)
