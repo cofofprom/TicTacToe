@@ -21,7 +21,7 @@ typedef struct {
     SOCKET usersock;
     int role;
     int opponentID;
-    GAME_BOARD* game
+    GAME_BOARD* game;
 } SERVERUSER_LITE;
 
 SERVERUSER_LITE* initUser(char* nickname, SOCKET usersock);

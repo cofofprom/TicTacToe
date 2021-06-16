@@ -6,7 +6,7 @@
 #include "..\clientNetworking\packet.h"
 #include "..\clientNetworking\packetEnums.h"
 #include "utils.h"
-#include "..\gameboard\gameboard.h"
+//#include "..\gameboard\gameboard.h"
 
 #define SIP "127.0.0.1"
 #define SPORT 80
@@ -18,11 +18,13 @@ int USRSZ = 0;
 
 void* processRequest(void* arg)
 {
+    printf("%s\n", "someone connected");
     SOCKET* client = (SOCKET*)arg;
     int curr;
     if (preLoginRoutine(client) == SOCKET_ERROR) return 0;
     char rawData[INBUFSIZE] = {0};
-    recv(*client, rawData, INBUFSIZE, 0);
+    if(recv(*client, rawData, INBUFSIZE, 0) == SOCKET_ERROR) printf("%d\n", WSAGetLastError());
+    printf("amogus = '%s'\n", rawData);
     PACKET *inputData = decodePacket(rawData);
     if (inputData->packetSubtype == SendLoginData) {
         char loginLen = inputData->packetData[0];
@@ -30,6 +32,8 @@ void* processRequest(void* arg)
         for(int i = 0; i < loginLen; i++) {
             login[i] = inputData->packetData[i + 1];
         }
+        login[loginLen] = 0;
+        printf("login is %s\n", login);
         USR[USRSZ++] = *initUser(login, *client); // юзверь авторизован
         curr = USRSZ - 1;
         PACKET* ok = initPacketFromParams(ServicePacket, ServiceSuccess, 0, 0);
@@ -37,7 +41,7 @@ void* processRequest(void* arg)
         send(*client, okRaw, strlen(okRaw), 0);
     }
 
-    int exitFlag = 0;
+    /*int exitFlag = 0;
     //char boardSize;
     int opponent;
     while(!exitFlag) {
@@ -171,7 +175,6 @@ void* processRequest(void* arg)
     }
 
     int gameflag = 0;*/
-
 }
 
 int main(int argc,char** argv)
