@@ -6,18 +6,22 @@
 #include "..\userdata\userdata.h"
 #include <string.h>
 #include <winsock2.h>
+#include "..\gameboard\gameboard.h"
 
 typedef struct {
     USER_DATA user;
     char* password;
     SOCKET usersock;
     int isAuth;
+
 } SERVERUSER;
 
 typedef struct {
     char* nickname;
     SOCKET usersock;
-    int isAuth;
+    int role;
+    int opponentID;
+    GAME_BOARD* game
 } SERVERUSER_LITE;
 
 SERVERUSER_LITE* initUser(char* nickname, SOCKET usersock);

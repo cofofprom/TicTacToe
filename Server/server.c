@@ -19,6 +19,7 @@ int USRSZ = 0;
 void* processRequest(void* arg)
 {
     SOCKET* client = (SOCKET*)arg;
+    int curr;
     if (preLoginRoutine(client) == SOCKET_ERROR) return 0;
     char rawData[INBUFSIZE] = {0};
     recv(*client, rawData, INBUFSIZE, 0);
@@ -30,11 +31,67 @@ void* processRequest(void* arg)
             login[i] = inputData->packetData[i + 1];
         }
         USR[USRSZ++] = *initUser(login, *client); // юзверь авторизован
+        curr = USRSZ - 1;
+        PACKET* ok = initPacketFromParams(ServicePacket, ServiceSuccess, 0, 0);
+        char* okRaw = encodePacket(ok);
+        send(*client, okRaw, strlen(okRaw), 0);
     }
 
-    while
+    int exitFlag = 0;
+    //char boardSize;
+    int opponent;
+    while(!exitFlag) {
+        char rawData[INBUFSIZE] = {0};
+        recv(*client, rawData, INBUFSIZE, 0);
+        PACKET *inputData = decodePacket(rawData);
+        if(inputData->packetSubtype == ServiceUserAction && inputData->packetCode == GameRequestAction) {
+            //boardSize = inputData->packetData[0];
+            int idx = findNickname(USR, USRSZ, (inputData->packetData + 2));
+            SOCKET opponent = USR[idx].usersock;
+            char* inviteData = (char*)calloc(strlen(USR[curr].nickname) + 2, sizeof(char));
+            inviteData[0] = 3;
+            inviteData[1] = (char)strlen(USR[curr].nickname);
+            for(int i = 0; i < inviteData[1]; i++) {
+                inviteData[i + 2] = USR[curr].nickname[i];
+            }
+            PACKET* otherInvite = initPacketFromParams(ServicePacket, ServiceUserAction, GameRequestAction, inviteData);
+            char* rawInvite = encodePacket(otherInvite);
+            send(opponent, rawInvite, strlen(rawInvite), 0);
+            USR[curr].role = CrossCell;
+            USR[curr].opponentID = idx;
+            USR[curr].game = initNewBoard(3);
+        }
+        else if(inputData->packetSubtype == ServiceUserAction && inputData->packetCode == GameAcceptAction) {
+            USR[curr].game = initNewBoard(3);
+            USR[curr].role = ZeroCell;
+            for(int i = 0; i < USRSZ; i++) {
+                if(USR[i].opponentID == curr) {
+                    USR[curr].opponentID = i;
+                    break;
+                }
+            }
+            PACKET* ok = initPacketFromParams(ServicePacket, ServiceSuccess, 0, 0);
+            char* okRaw = encodePacket(ok);
+            send(USR[USR[curr].opponentID].usersock, okRaw, strlen(okRaw), 0);
+            PACKET* requestMove = initPacketFromParams(DataRequestPacket, RequestPlayerMove, 0, encodeBoard(USR[curr].game));
+            char* requestMoveRaw = encodePacket(requestMove);
+            send(USR[USR[curr].opponentID].usersock, requestMoveRaw, strlen(requestMoveRaw), 0);
+        }
+        else if(USR[curr].game != NULL && inputData->packetSubtype == SendPlayerMove) {
+            char x = inputData->packetData[0];
+            char y = inputData->packetData[1];
+            send(USR[USR[curr].opponentID].usersock, rawData, strlen(rawData), 0);
+            PACKET* ok = initPacketFromParams(ServicePacket, ServiceSuccess, 0, 0);
+            char* okRaw = encodePacket(ok);
+            send(*client, okRaw, strlen(okRaw), 0);
+            makeMove(USR[curr].game, x, y, USR[curr].role);
+            makeMove(USR[USR[curr].opponentID].game, x, y, USR[curr].role);
+        }
 
-        /* else if (inputData->packetSubtype == RequestCheckUsername) {
+        if(USR[curr].game && checkBoardWinConditions(USR[curr].game) != GAMEBOARD_NO_WIN) exitFlag = 1;
+    }
+
+    /* else if (inputData->packetSubtype == RequestCheckUsername) {
             int okflag = checkNickname(users, usersz, inputData->packetData);
             if(okflag) {
                 PACKET* success = initPacketFromParams(ServicePacket, ServiceSuccess, 0, 0);
@@ -116,12 +173,6 @@ void* processRequest(void* arg)
 
 int main(int argc,char** argv)
 {
-    FILE* db = fopen("usr.db", "rb");
-    char cusr[1024] = {0};
-    while(fgets(cusr, 1024, db) != NULL) {
-        users[usersz++] = *deserialize(cusr);
-    }
-    fclose(db);
     WSADATA sdata;
     WSAStartup(MAKEWORD(2, 2), &sdata);
     SOCKET serverSock = socket(AF_INET, SOCK_STREAM, 0);
@@ -137,11 +188,5 @@ int main(int argc,char** argv)
     pthread_t  thread;
     pthread_create(&thread, NULL, processRequest, (void*)&client);
     pthread_join(thread, NULL);
-    FILE* dbw = fopen("usr.db", "wb");
-    for(int i = 0; i < usersz; i++) {
-        char* buf = serialize(&users[usersz]);
-        fprintf(dbw, "%s\n", buf);
-    }
-    fclose(dbw);
     return 0;
 }

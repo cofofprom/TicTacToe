@@ -26,7 +26,7 @@ SERVERUSER_LITE* deserialize(char* user) {
         usr->nickname[i] = user[i + 1];
     }
     usr->nickname[nicksize + 1] = 0;
-    usr->isAuth = 0;
+    usr->role = 0;
     usr->usersock = 0;
     return usr;
 }
@@ -61,5 +61,6 @@ SERVERUSER_LITE* initUser(char* nickname, SOCKET usersock) {
     SERVERUSER_LITE* target = (SERVERUSER_LITE*)calloc(1, sizeof(SERVERUSER_LITE));
     target->usersock = usersock;
     strcpy(target->nickname, nickname);
-    target->isAuth = 1;
+    target->role = 0;
+    target->opponentID = -1;
 }
