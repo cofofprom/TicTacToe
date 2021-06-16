@@ -24,6 +24,7 @@ PACKET *initPacketFromParams(char packetType, char packetSubtype, char packetCod
         return NULL;
     }
 
+    newPacket->packetLength = 2;
     newPacket->packetType = packetType;
     newPacket->packetSubtype = packetSubtype;
     if(newPacket->packetSubtype == ServiceErrorPacket ||
@@ -32,15 +33,32 @@ PACKET *initPacketFromParams(char packetType, char packetSubtype, char packetCod
        newPacket->packetSubtype == ServiceNotificationPacket)
     {
         newPacket->packetCode = packetCode;
+        newPacket->packetLength++;
     } else{
         newPacket->packetCode = -1;
     }
 
     if(data != NULL)
     {
-        int dataLength = strlen(data);
+        short dataLength = strlen(data);
         newPacket->packetData = calloc(dataLength + 1, sizeof(char));
         memcpy(newPacket->packetData,data,dataLength);
+        newPacket->packetLength += dataLength;
+    }
+
+    return newPacket;
+}
+
+PACKET *makePacketCopy(PACKET *copiedPacket) {
+    if(copiedPacket == NULL)
+    {
+        return NULL;
+    }
+
+    PACKET* newPacket = initPacketFromParams(copiedPacket->packetType,copiedPacket->packetSubtype,copiedPacket->packetCode,copiedPacket->packetData);
+    if(newPacket == NULL)
+    {
+        return NULL;
     }
 
     return newPacket;
@@ -60,6 +78,8 @@ PACKET *decodePacket(char *encoding) {
 
     char* currentEncodingPos = encoding;
 
+    currentEncodingPos[0]--;
+    currentEncodingPos[1]--;
     memcpy(&newPacket->packetLength,currentEncodingPos,sizeof(short));
     currentEncodingPos += sizeof(short);
 
@@ -112,6 +132,8 @@ char *encodePacket(PACKET *targetPacket) {
     char* currentEncodingPos = encoding;
 
     memcpy(currentEncodingPos,&targetPacket->packetLength,sizeof(short));
+    currentEncodingPos[0]++;
+    currentEncodingPos[1]++;
     currentEncodingPos += sizeof(short);
 
     *currentEncodingPos = targetPacket->packetType;
@@ -181,5 +203,3 @@ void printPacketDebug(PACKET *targetPacket) {
     }
     printf("-----------------------------\n");
 }
-
-
