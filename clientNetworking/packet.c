@@ -78,6 +78,8 @@ PACKET *decodePacket(char *encoding) {
 
     char* currentEncodingPos = encoding;
 
+    currentEncodingPos[0]--;
+    currentEncodingPos[1]--;
     memcpy(&newPacket->packetLength,currentEncodingPos,sizeof(short));
     currentEncodingPos += sizeof(short);
 
@@ -130,6 +132,8 @@ char *encodePacket(PACKET *targetPacket) {
     char* currentEncodingPos = encoding;
 
     memcpy(currentEncodingPos,&targetPacket->packetLength,sizeof(short));
+    currentEncodingPos[0]++;
+    currentEncodingPos[1]++;
     currentEncodingPos += sizeof(short);
 
     *currentEncodingPos = targetPacket->packetType;

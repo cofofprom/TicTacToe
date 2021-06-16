@@ -44,12 +44,18 @@ NETWORK_WORKER *initNewNetworkWorker(void* (*clientWorkerMain)(void*), const cha
     newWorker->serverAddress.sin_family = AF_INET;
     newWorker->serverAddress.sin_port = htons(port);
     newWorker->serverAddress.sin_addr.S_un.S_addr = inet_addr(address);
-    if (connect(newWorker->networkSocket, (struct sockaddr*)&newWorker->serverAddress, sizeof(newWorker->serverAddress)) == SOCKET_ERROR)
+    result = connect(newWorker->networkSocket, (struct sockaddr*)&newWorker->serverAddress, sizeof(newWorker->serverAddress));
+    if (result == SOCKET_ERROR)
     {
-        if(errorCode != NULL) *errorCode = CNW_SERVER_CONNECTION_ERROR;
-        closesocket(newWorker->networkSocket);
-        free(newWorker);
-        return NULL;
+        result = WSAGetLastError();
+        if(result != WSAEWOULDBLOCK)
+        {
+            if(errorCode) errorCode = CNW_SERVER_CONNECTION_ERROR;
+            closesocket(newWorker->networkSocket);
+            free(newWorker);
+            return NULL;
+        }
+
     }
 
     //Mutex creation
@@ -80,7 +86,10 @@ NETWORK_WORKER *initNewNetworkWorker(void* (*clientWorkerMain)(void*), const cha
         return 0;
     }
 
-    pthread_create(&newWorker->workerThread,NULL,clientWorkerMain,&newWorker);
+    newWorker->transmitPacketQueue = initPacketQueue();
+    newWorker->receivedPacketQueue = initPacketQueue();
+
+    pthread_create(&newWorker->workerThread,NULL,clientWorkerMain,newWorker);
 
     return newWorker;
 }
@@ -153,19 +162,24 @@ void* workerMain(void* attr) {
             pthread_mutex_lock(&targetWorker->socketMutex);
             result = recv(targetWorker->networkSocket,packetStart,2,0);
             pthread_mutex_unlock(&targetWorker->socketMutex);
+            packetStart[0]--;
+            packetStart[1]--;
             memcpy(&incomingBytesLeft,packetStart,sizeof(short));
-            currentIncomingEncoding = calloc(incomingBytesLeft,sizeof(char));
+            currentIncomingEncoding = calloc(incomingBytesLeft + 2 + 1,sizeof(char));
+            memcpy(currentIncomingEncoding,packetStart,sizeof(short));
+            currentIncomingEncoding[0]++;
+            currentIncomingEncoding[1]++;
             continue;
         }
 
         //If we are already reading a packet, wait until it is fully available, and read it
         pthread_mutex_lock(&targetWorker->socketMutex);
-        result = recv(targetWorker->networkSocket,currentIncomingEncoding,incomingBytesLeft,MSG_PEEK);
+        result = recv(targetWorker->networkSocket,currentIncomingEncoding+sizeof(short),incomingBytesLeft,MSG_PEEK);
         pthread_mutex_unlock(&targetWorker->socketMutex);
-        if(result > incomingBytesLeft && currentIncomingEncoding != NULL)
+        if(result >= incomingBytesLeft && currentIncomingEncoding != NULL)
         {
             pthread_mutex_lock(&targetWorker->socketMutex);
-            result = recv(targetWorker->networkSocket,currentIncomingEncoding,incomingBytesLeft,0);
+            result = recv(targetWorker->networkSocket,currentIncomingEncoding+sizeof(short),incomingBytesLeft,0);
             pthread_mutex_unlock(&targetWorker->socketMutex);
             PACKET* newPacket = decodePacket(currentIncomingEncoding);
             pthread_mutex_lock(&targetWorker->receivedPacketQueueMutex);
@@ -190,9 +204,9 @@ int transmitPacketWithClientWorker(NETWORK_WORKER *targetWorker, PACKET *targetP
 
     int result;
 
-    pthread_mutex_lock(targetWorker->transmitPacketQueueMutex);
+    pthread_mutex_lock(&targetWorker->transmitPacketQueueMutex);
     result = enqueuePacket(targetWorker->transmitPacketQueue,targetPacket);
-    pthread_mutex_unlock(targetWorker->transmitPacketQueueMutex);
+    pthread_mutex_unlock(&targetWorker->transmitPacketQueueMutex);
     if(result != PACKETQUEUE_SUCCESS)
     {
         switch(result)
@@ -216,14 +230,14 @@ PACKET *getPacketFromClientWorker(NETWORK_WORKER *targetWorker, int* errorCode) 
         if(errorCode) *errorCode = CNW_NULL_PTR_ERR;
         return NULL;
     }
-    pthread_mutex_lock(targetWorker->receivedPacketQueueMutex);
+    pthread_mutex_lock(&targetWorker->receivedPacketQueueMutex);
     if(targetWorker->receivedPacketQueue->length == 0)
     {
         if(errorCode) *errorCode = CNW_QUEUE_EMPTY;
         return NULL;
     }
     PACKET* newPacket = dequeuePacket(targetWorker->receivedPacketQueue);
-    pthread_mutex_unlock(targetWorker->receivedPacketQueueMutex);
+    pthread_mutex_unlock(&targetWorker->receivedPacketQueueMutex);
 
     return newPacket;
 }
