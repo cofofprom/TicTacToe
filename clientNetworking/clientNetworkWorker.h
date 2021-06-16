@@ -24,6 +24,7 @@
 #define CNW_QUEUE_EMPTY -8
 #define CNW_SEND_ERROR -9
 #define CNW_QUEUE_FULL -10
+#define CNW_BAD_PACKET_DATA -11
 
 ///@par NetworkWorker:
 ///Use network worker to receive and transmit network packets.
@@ -84,5 +85,55 @@ int transmitPacketWithClientWorker(NETWORK_WORKER* targetWorker, PACKET* targetP
 ///@retval NULL On error or if receiving queue is empty. Queue length check should be performed to detect errors through this value.
 ///@retval PACKET* Packet from the head of worker's receiving queue
 PACKET* getPacketFromClientWorker(NETWORK_WORKER* targetWorker, int* errorCode);
+
+//*****************************************************
+//*                 HELPER FUNCTIONS                  *
+//*****************************************************
+
+///@brief Send register request to server
+///@param targetWorker worker that manages server connection
+///@param login User login
+///@param password User password
+int sendRegisterData(NETWORK_WORKER* targetWorker, char* login, char* password);
+
+///@brief Send login request to server
+///@param targetWorker worker that manages server connection
+///@param login User login
+///@param password User password
+int sendLoginData(NETWORK_WORKER* targetWorker, char* login, char* password);
+
+///@brief Send board move to server
+///@param targetWorker worker that manages server connection
+///@param row Zero-based row index
+///@param column Zero-based column index
+int sendBoardMove(NETWORK_WORKER* targetWorker, char row, char column);
+
+///@brief Ask server for friend list
+///@param targetWorker worker that manages server connection
+int requestFriendList(NETWORK_WORKER* targetWorker);
+
+///@brief Send game request to user
+///@param targetWorker worker that manages server connection
+///@param boardSize Game board size
+///@param opponentNickname Opponent's nickname
+int requestGame(NETWORK_WORKER* targetWorker,char boardSize , char* opponentNickname);
+
+///@brief Tell server to end current game
+///@param targetWorker worker that manages server connection
+int endGame(NETWORK_WORKER* targetWorker);
+
+///@brief Accept pending game request
+///@param targetWorker worker that manages server connection
+///@param opponentNickname Who's game request to accept
+int acceptGameRequest(NETWORK_WORKER* targetWorker, char* opponentNickname);
+
+///@brief Decline pending game request
+///@param targetWorker worker that manages server connection
+///@param opponentNickname Who's game request to decline
+int declineGameRequest(NETWORK_WORKER* targetWorker, char* opponentNickname);
+
+///@brief Tell server that you will disconnect
+///@param targetWorker worker that manages server connection
+int sendDisconnect(NETWORK_WORKER* targetWorker);
 
 #endif //TICTACTOE_CLIENTNETWORKWORKER_H

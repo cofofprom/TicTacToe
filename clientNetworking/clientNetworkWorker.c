@@ -241,3 +241,194 @@ PACKET *getPacketFromClientWorker(NETWORK_WORKER *targetWorker, int* errorCode) 
 
     return newPacket;
 }
+
+int sendRegisterData(NETWORK_WORKER *targetWorker, char *login, char *password) {
+    if(targetWorker == NULL || login == NULL || password == NULL)
+    {
+        return CNW_NULL_PTR_ERR;
+    }
+
+    if(strlen(login) > 32 || strlen(password) > 32)
+    {
+        return CNW_BAD_PACKET_DATA;
+    }
+
+    char* packetData = calloc(strlen(login) + strlen(password) + 2 + 1, sizeof(char));
+    char* currentDataPos = packetData;
+
+    *currentDataPos = strlen(login);
+    currentDataPos++;
+
+    memcpy(currentDataPos,login,strlen(login));
+    currentDataPos += strlen(login);
+
+    *currentDataPos = strlen(password);
+    currentDataPos++;
+
+    memcpy(currentDataPos,password,strlen(password));
+    currentDataPos += strlen(password);
+
+    PACKET* newPacket = initPacketFromParams(DataSendPacket, SendRegisterRequest, 0, packetData);
+    transmitPacketWithClientWorker(targetWorker,newPacket);
+
+    freePacket(newPacket);
+    free(packetData);
+
+    return CNW_SUCCESS;
+}
+
+int sendLoginData(NETWORK_WORKER *targetWorker, char *login, char *password) {
+    if(targetWorker == NULL || login == NULL || password == NULL)
+    {
+        return CNW_NULL_PTR_ERR;
+    }
+
+    if(strlen(login) > 32 || strlen(password) > 32)
+    {
+        return CNW_BAD_PACKET_DATA;
+    }
+
+    char* packetData = calloc(strlen(login) + strlen(password) + 2 + 1, sizeof(char));
+    char* currentDataPos = packetData;
+
+    *currentDataPos = strlen(login);
+    currentDataPos++;
+
+    memcpy(currentDataPos,login,strlen(login));
+    currentDataPos += strlen(login);
+
+    *currentDataPos = strlen(password);
+    currentDataPos++;
+
+    memcpy(currentDataPos,password,strlen(password));
+    currentDataPos += strlen(password);
+
+    PACKET* newPacket = initPacketFromParams(DataSendPacket, SendLoginData, 0, packetData);
+    transmitPacketWithClientWorker(targetWorker,newPacket);
+
+    freePacket(newPacket);
+    free(packetData);
+
+    return CNW_SUCCESS;
+}
+
+int sendBoardMove(NETWORK_WORKER *targetWorker, char row, char column) {
+    if(targetWorker == NULL)
+    {
+        return CNW_NULL_PTR_ERR;
+    }
+
+    char* packetData = calloc(3,sizeof(char));
+
+    packetData[0] = row + 1;
+    packetData[1] = column + 1;
+
+    PACKET* newPacket = initPacketFromParams(DataSendPacket,SendPlayerMove,0,packetData);
+    transmitPacketWithClientWorker(targetWorker,newPacket);
+
+    freePacket(newPacket);
+    free(packetData);
+
+    return CNW_SUCCESS;
+}
+
+int requestFriendList(NETWORK_WORKER *targetWorker) {
+    if(targetWorker == NULL)
+    {
+        return CNW_NULL_PTR_ERR;
+    }
+
+    PACKET* newPacket = initPacketFromParams(DataRequestPacket,RequestPlayerList,2,NULL);
+
+    transmitPacketWithClientWorker(targetWorker, newPacket);
+
+    freePacket(newPacket);
+
+    return CNW_SUCCESS;
+}
+
+int requestGame(NETWORK_WORKER *targetWorker,char boardSize, char *opponentNickname) {
+    if(targetWorker == NULL || opponentNickname == NULL)
+    {
+        return CNW_NULL_PTR_ERR;
+    }
+
+    char* packetData = calloc(strlen(opponentNickname) + 3, sizeof(char));
+    packetData[0] = boardSize;
+    packetData[1] = strlen(opponentNickname);
+    memcpy(packetData+2, opponentNickname, strlen(opponentNickname));
+
+    PACKET* newPacket = initPacketFromParams(ServicePacket,ServiceUserAction,GameRequestAction,packetData);
+    transmitPacketWithClientWorker(targetWorker, newPacket);
+
+    freePacket(newPacket);
+    free(packetData);
+
+    return CNW_SUCCESS;
+}
+
+int endGame(NETWORK_WORKER *targetWorker) {
+    if(targetWorker == NULL)
+    {
+        return CNW_NULL_PTR_ERR;
+    }
+
+    PACKET* newPacket  = initPacketFromParams(ServicePacket,ServiceEndGame,0,NULL);
+    transmitPacketWithClientWorker(targetWorker,newPacket);
+
+    freePacket(newPacket);
+
+    return CNW_SUCCESS;
+}
+
+int acceptGameRequest(NETWORK_WORKER *targetWorker, char* opponentNickname) {
+    if(targetWorker == NULL || opponentNickname == NULL)
+    {
+        return CNW_NULL_PTR_ERR;
+    }
+
+    char* packetData = calloc(strlen(opponentNickname) + 2,sizeof(char));
+    packetData[0] = strlen(opponentNickname);
+    memcpy(packetData+1,opponentNickname,strlen(opponentNickname));
+
+    PACKET* newPacket = initPacketFromParams(ServicePacket,ServiceUserAction,GameAcceptAction,packetData);
+    transmitPacketWithClientWorker(targetWorker,newPacket);
+
+    freePacket(newPacket);
+    free(packetData);
+
+    return CNW_SUCCESS;
+}
+
+int declineGameRequest(NETWORK_WORKER *targetWorker, char* opponentNickname) {
+    if(targetWorker == NULL || opponentNickname == NULL)
+    {
+        return CNW_NULL_PTR_ERR;
+    }
+
+    char* packetData = calloc(strlen(opponentNickname) + 2,sizeof(char));
+    packetData[0] = strlen(opponentNickname);
+    memcpy(packetData+1,opponentNickname,strlen(opponentNickname));
+
+    PACKET* newPacket = initPacketFromParams(ServicePacket,ServiceUserAction,GameDeclineAction,packetData);
+    transmitPacketWithClientWorker(targetWorker,newPacket);
+
+    freePacket(newPacket);
+    free(packetData);
+
+    return CNW_SUCCESS;
+}
+
+int sendDisconnect(NETWORK_WORKER *targetWorker) {
+    if(targetWorker == NULL)
+    {
+        return CNW_NULL_PTR_ERR;
+    }
+
+    PACKET* newPacket  = initPacketFromParams(ServicePacket,ServiceUserAction,DisconnectAction,NULL);
+    transmitPacketWithClientWorker(targetWorker,newPacket);
+
+    freePacket(newPacket);
+
+    return CNW_SUCCESS;
+}

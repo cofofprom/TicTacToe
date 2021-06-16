@@ -35,17 +35,17 @@ void* ClientStart(void* param) {
         //pthread_mutex_unlock(&mutex);
         //Sleep(2000);
 
-        char testData[] = {1,2,3,4,5,0};
+//        char testData[] = {1,2,3,4,5,0};
+//
+//        PACKET* newPacket = initPacketFromParams(ServicePacket,ServiceUserAction,BlacklistAction,&testData);
+//
+//        char* encoding = encodePacket(newPacket);
 
-        PACKET* newPacket = initPacketFromParams(ServicePacket,ServiceUserAction,BlacklistAction,&testData);
-
-        char* encoding = encodePacket(newPacket);
-
-        printf("Transmitting: ");
-        for (int i = 0; i < strlen(encoding); i++) {
-            printf("%d,",encoding[i]);
-        }
-        printf("\n");
+//        printf("Transmitting: ");
+//        for (int i = 0; i < strlen(encoding); i++) {
+//            printf("%d,",encoding[i]);
+//        }
+//        printf("\n");
 
 //        ret = send(client, encoding, strlen(encoding), 0);
 //        if (ret == SOCKET_ERROR)
@@ -58,8 +58,8 @@ void* ClientStart(void* param) {
 //            return (void*)2;
 //        }
 
-        freePacket(newPacket);
-        free(encoding);
+//        freePacket(newPacket);
+//        free(encoding);
     }
     return (void*)0;
 }

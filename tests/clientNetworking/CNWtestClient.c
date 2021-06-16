@@ -23,19 +23,23 @@ int main()
 
     NETWORK_WORKER* worker = initNewNetworkWorker(workerMain,"127.0.0.1",5510,&errCode);
 
-    char testData[] = {1,2,3,4,5,6,7,8,9,10,0};
+    char login[] = {1,2,3,4,5,0};
+    char password[] = {5,4,3,2,1,0};
+    char testNickname[] = {1,2,3,4,5,6,7,8,9,10,0};
+    char boardSize = 5;
+    char row = 3;
+    char column = 2;
+
+    sendDisconnect(worker);
 
     char dump = ' ';
 
-    PACKET* testPacket = initPacketFromParams(ServicePacket,ServiceUserAction,BlacklistAction,&testData);
-    transmitPacketWithClientWorker(worker, testPacket);
-
     dump = getchar();
-    PACKET* recPacket = getPacketFromClientWorker(worker,NULL);
-    dump = getchar();
+//    PACKET* recPacket = getPacketFromClientWorker(worker,NULL);
+//    dump = getchar();
 
     stopNetworkWorker(worker);
-    freePacket(testPacket);
+//    freePacket(testPacket);
 
     return 0;
 }
