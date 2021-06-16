@@ -86,6 +86,9 @@ void* processRequest(void* arg)
             send(*client, okRaw, strlen(okRaw), 0);
             makeMove(USR[curr].game, x, y, USR[curr].role);
             makeMove(USR[USR[curr].opponentID].game, x, y, USR[curr].role);
+            PACKET* requestMove = initPacketFromParams(DataRequestPacket, RequestPlayerMove, 0, encodeBoard(USR[curr].game));
+            char* requestMoveRaw = encodePacket(requestMove);
+            send(USR[USR[curr].opponentID].usersock, requestMoveRaw, strlen(requestMoveRaw), 0);
         }
 
         if(USR[curr].game && checkBoardWinConditions(USR[curr].game) != GAMEBOARD_NO_WIN) exitFlag = 1;
