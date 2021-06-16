@@ -65,22 +65,20 @@ PACKET *makePacketCopy(PACKET *copiedPacket) {
 }
 
 PACKET *decodePacket(char *encoding) {
-    if(encoding == NULL)
-    {
+    if (encoding == NULL) {
         return NULL;
     }
 
-    PACKET* newPacket = initPacket();
-    if(newPacket == NULL)
-    {
+    PACKET *newPacket = initPacket();
+    if (newPacket == NULL) {
         return NULL;
     }
 
-    char* currentEncodingPos = encoding;
+    char *currentEncodingPos = encoding;
 
     currentEncodingPos[0]--;
     currentEncodingPos[1]--;
-    memcpy(&newPacket->packetLength,currentEncodingPos,sizeof(short));
+    memcpy(&newPacket->packetLength, currentEncodingPos, sizeof(short));
     currentEncodingPos += sizeof(short);
 
     newPacket->packetType = *currentEncodingPos;
@@ -89,32 +87,31 @@ PACKET *decodePacket(char *encoding) {
     newPacket->packetSubtype = *currentEncodingPos;
     currentEncodingPos++;
 
-    if(newPacket->packetSubtype == ServiceErrorPacket ||
-    newPacket->packetSubtype == ServiceUserAction ||
-    newPacket->packetSubtype == RequestPlayerList ||
-    newPacket->packetSubtype == ServiceNotificationPacket)
-    {
+    if (newPacket->packetSubtype == ServiceErrorPacket ||
+        newPacket->packetSubtype == ServiceUserAction ||
+        newPacket->packetSubtype == RequestPlayerList ||
+        newPacket->packetSubtype == ServiceNotificationPacket) {
         newPacket->packetCode = *currentEncodingPos;
         currentEncodingPos++;
     }
 
     int expectedPacketDataLength = newPacket->packetLength - 2;
-    if(newPacket->packetCode != -1)
-    {
+    if (newPacket->packetCode != -1) {
         expectedPacketDataLength -= 1;
     }
 
-    newPacket->packetData = calloc(expectedPacketDataLength + 1, sizeof(char));
-    if(newPacket->packetData == NULL)
+    if (expectedPacketDataLength != 0)
     {
-        free(newPacket);
-        return NULL;
+            newPacket->packetData = calloc(expectedPacketDataLength + 1, sizeof(char));
+        if (newPacket->packetData == NULL) {
+            free(newPacket);
+            return NULL;
+        }
+
+        memcpy(newPacket->packetData, currentEncodingPos, expectedPacketDataLength);
     }
 
-    memcpy(newPacket->packetData,currentEncodingPos,expectedPacketDataLength);
-
     return newPacket;
-
 }
 
 char *encodePacket(PACKET *targetPacket) {
@@ -151,22 +148,23 @@ char *encodePacket(PACKET *targetPacket) {
         currentEncodingPos++;
     }
 
-    int expectedPacketDataLength = targetPacket->packetLength - 2;
-    if(targetPacket->packetCode != -1)
+    if(targetPacket->packetData != NULL)
     {
-        expectedPacketDataLength -= 1;
+        int expectedPacketDataLength = targetPacket->packetLength - 2;
+        if (targetPacket->packetCode != -1) {
+            expectedPacketDataLength -= 1;
+        }
+        int dataLength = strlen(targetPacket->packetData);
+
+        if (dataLength != expectedPacketDataLength) {
+            free(encoding);
+            return NULL;
+        }
+
+        memcpy(currentEncodingPos, targetPacket->packetData, expectedPacketDataLength);
+
+        currentEncodingPos += expectedPacketDataLength;
     }
-    int dataLength = strlen(targetPacket->packetData);
-
-    if(dataLength != expectedPacketDataLength)
-    {
-        free(encoding);
-        return NULL;
-    }
-
-    memcpy(currentEncodingPos, targetPacket->packetData, expectedPacketDataLength);
-
-    currentEncodingPos += expectedPacketDataLength;
 
     return encoding;
 }

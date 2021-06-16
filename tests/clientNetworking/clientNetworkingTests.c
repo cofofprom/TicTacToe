@@ -34,6 +34,27 @@ void testPacketEncoding()
     free(encoding);
 }
 
+void testNodataEncodingDecoding()
+{
+    PACKET* testPacket = initPacketFromParams(DataRequestPacket, LoginRequest, 0, 0);
+    char* encoding = encodePacket(testPacket);
+    PACKET* decodedPacket = decodePacket(encoding);
+
+    assert_int_equal(testPacket->packetCode,decodedPacket->packetCode);
+    assert_int_equal(testPacket->packetType,decodedPacket->packetType);
+    assert_int_equal(testPacket->packetSubtype,decodedPacket->packetSubtype);
+    assert_int_equal(testPacket->packetLength,decodedPacket->packetLength);
+    assert_int_equal(testPacket->packetData,decodedPacket->packetData);
+
+    printPacketDebug(testPacket);
+    printPacketDebug(decodedPacket);
+
+    freePacket(testPacket);
+    freePacket(decodedPacket);
+
+    free(encoding);
+}
+
 //
 // put the test into a fixture...
 //
@@ -41,6 +62,7 @@ void test_fixture_packet( void )
 {
     test_fixture_start();
     run_test(testPacketEncoding);
+    run_test(testNodataEncodingDecoding);
     test_fixture_end();
 }
 

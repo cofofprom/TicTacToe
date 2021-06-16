@@ -47,16 +47,16 @@ void* ClientStart(void* param) {
         }
         printf("\n");
 
-        ret = send(client, encoding, strlen(encoding), 0);
-        if (ret == SOCKET_ERROR)
-        {
-            pthread_mutex_lock(&mutex);
-            pthread_mutex_lock(&mutex_file);
-            printf("Error sending data\n");
-            pthread_mutex_unlock(&mutex_file);
-            pthread_mutex_unlock(&mutex);
-            return (void*)2;
-        }
+//        ret = send(client, encoding, strlen(encoding), 0);
+//        if (ret == SOCKET_ERROR)
+//        {
+//            pthread_mutex_lock(&mutex);
+//            pthread_mutex_lock(&mutex_file);
+//            printf("Error sending data\n");
+//            pthread_mutex_unlock(&mutex_file);
+//            pthread_mutex_unlock(&mutex);
+//            return (void*)2;
+//        }
 
         freePacket(newPacket);
         free(encoding);

@@ -28,5 +28,6 @@ add_executable(CNWtestClient tests/clientNetworking/CNWtestClient.c clientNetwor
 target_link_libraries(CNWtestClient ws2_32)
 target_link_libraries(CNWtestClient Threads::Threads)
 
-add_executable(clientNetworkingTest seatest/seatest.c clientNetworking/clientNetworkWorker.c clientNetworking/packet.c clientNetworking/packet.h tests/clientNetworking/clientNetworkingTests.c clientNetworking/packetEnums.h clientNetworking/packetQueue.c clientNetworking/packetQueue.h tests/clientNetworking/CNWtestServer.c tests/clientNetworking/CNWtestClient.c)
+add_executable(clientNetworkingTest seatest/seatest.c clientNetworking/clientNetworkWorker.c clientNetworking/packet.c clientNetworking/packet.h tests/clientNetworking/clientNetworkingTests.c clientNetworking/packetEnums.h clientNetworking/packetQueue.c clientNetworking/packetQueue.h)
 target_link_libraries(clientNetworkingTest ws2_32)
+target_link_libraries(clientNetworkingTest Threads::Threads)
