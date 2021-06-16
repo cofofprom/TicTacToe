@@ -5,7 +5,7 @@ set(CMAKE_C_STANDARD 11)
 
 find_package(Threads REQUIRED)
 
-add_executable(TTTClient Client/client.c clientNetworking/clientNetworkWorker.c clientNetworking/clientNetworkWorker.h)
+add_executable(TTTClient Client/client.c clientNetworking/clientNetworkWorker.c clientNetworking/clientNetworkWorker.h SetField/SetField.c SetField/SetField.h)
 add_executable(TTTServer Server/server.c Server/utils.h Server/utils.c)
 
 target_link_libraries(TTTClient ws2_32)
@@ -19,6 +19,7 @@ add_executable(gamestateTest seatest/seatest.c gameboard/gameboard.c gamestate/g
 add_executable(userdataTest seatest/seatest.c userdata/userdata.c userdata/userdata.h tests/userdata/userdataTests.c)
 add_executable(playerlistTest seatest/seatest.c tests/playerlistTests/playerlistTests.c playerlist/playerlist.c playerlist/playerlist.h userdata/userdata.c)
 add_executable(packetQueueTest seatest/seatest.c clientNetworking/packet.c clientNetworking/packetEnums.h clientNetworking/packetQueue.c clientNetworking/packetQueue.h tests/packetqueueTests/packetQueueTests.c)
+add_executable(SetFieldTest  seatest/seatest.c seatest/seatest.h tests/SetField/SetFieldTest.c SetField/SetField.c SetField/SetField.h)
 
 add_executable(CNWtestServer tests/clientNetworking/CNWtestServer.c clientNetworking/clientNetworkWorker.c clientNetworking/packet.h clientNetworking/packet.c clientNetworking/packetQueue.c clientNetworking/packetEnums.h)
 target_link_libraries(CNWtestServer ws2_32)
