@@ -6,43 +6,35 @@
 #include "..\clientNetworking\packet.h"
 #include "..\clientNetworking\packetEnums.h"
 #include "utils.h"
+#include "..\gameboard\gameboard.h"
 
 #define SIP "127.0.0.1"
 #define SPORT 80
 #define INBUFSIZE 1024
 #define USRCOUNT 100
 
-SERVERUSER_LITE users[USRCOUNT] = { 0 };
-int usersz = 0;
+SERVERUSER_LITE USR[USRCOUNT] = { 0 };
+int USRSZ = 0;
 
 void* processRequest(void* arg)
 {
     SOCKET* client = (SOCKET*)arg;
     if (preLoginRoutine(client) == SOCKET_ERROR) return 0;
-    int loginWorkflowFlag = 1;
-    while(loginWorkflowFlag) {
-        char rawData[INBUFSIZE] = {0};
-        recv(*client, rawData, INBUFSIZE, 0);
-        PACKET *inputData = decodePacket(rawData);
-        if (inputData->packetSubtype == SendLoginData) {
-            char loginLen = inputData->packetData[0];
-            char passLen = inputData->packetData[loginLen + 1];
-            char* login = (char*)calloc(loginLen + 1, sizeof(char));
-            char* pass = (char*)calloc(passLen + 1, sizeof(char));
-            for(int i = 0; i < loginLen; i++) {
-                login[i] = inputData->packetData[i + 1];
-            }
-            for(int i = 0; i < passLen; i++) {
-                pass[i] = inputData->packetData[loginLen + i + 2];
-            }
-            for(int i = 0; i < usersz; i++) {
-                if(!strcmp(login, users[i].nickname) && !strcmp(pass, users[i].password)) {
-                    loginWorkflowFlag = 0;
-                    users[i].isAuth = 1;
-                    users[i].usersock = *client;
-                }
-            }
-        } else if (inputData->packetSubtype == RequestCheckUsername) {
+    char rawData[INBUFSIZE] = {0};
+    recv(*client, rawData, INBUFSIZE, 0);
+    PACKET *inputData = decodePacket(rawData);
+    if (inputData->packetSubtype == SendLoginData) {
+        char loginLen = inputData->packetData[0];
+        char* login = (char*)calloc(loginLen + 1, sizeof(char));
+        for(int i = 0; i < loginLen; i++) {
+            login[i] = inputData->packetData[i + 1];
+        }
+        USR[USRSZ++] = *initUser(login, *client); // юзверь авторизован
+    }
+
+    while
+
+        /* else if (inputData->packetSubtype == RequestCheckUsername) {
             int okflag = checkNickname(users, usersz, inputData->packetData);
             if(okflag) {
                 PACKET* success = initPacketFromParams(ServicePacket, ServiceSuccess, 0, 0);
@@ -82,10 +74,12 @@ void* processRequest(void* arg)
         } else {
             // хуйня
         }
-    }
-    int gameresolverflag = 1;
+    }*/
+    /*
+    int gamepreparationflag = 1;
     char rawDataBuf[INBUFSIZE] = { 0 };
-    while(gameresolverflag) {
+    GAME_BOARD* target;
+    while(gamepreparationflag) {
         recv(*client, rawDataBuf, INBUFSIZE, 0);
         PACKET* leninaPaket = decodePacket(rawDataBuf);
         if (leninaPaket->packetCode == GameRequestAction) {
@@ -110,9 +104,14 @@ void* processRequest(void* arg)
                 PACKET* ok = initPacketFromParams(ServicePacket, ServiceSuccess, 0, 0);
                 char* rawok = encodePacket(ok);
                 send(*client, rawok, strlen(rawok), 0);
+                gamepreparationflag = 0;
+                target = initNewBoard(boardSize);
             }
         }
     }
+
+    int gameflag = 0;*/
+
 }
 
 int main(int argc,char** argv)

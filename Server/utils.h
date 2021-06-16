@@ -16,10 +16,11 @@ typedef struct {
 
 typedef struct {
     char* nickname;
-    char* password;
     SOCKET usersock;
     int isAuth;
 } SERVERUSER_LITE;
+
+SERVERUSER_LITE* initUser(char* nickname, SOCKET usersock);
 
 char* serialize(SERVERUSER_LITE* user);
 SERVERUSER_LITE* deserialize(char* user);
