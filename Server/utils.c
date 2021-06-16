@@ -60,7 +60,7 @@ int findNickname(SERVERUSER_LITE* arr, int sz, const char* nick) {
 SERVERUSER_LITE* initUser(char* nickname, SOCKET usersock) {
     SERVERUSER_LITE* target = (SERVERUSER_LITE*)calloc(1, sizeof(SERVERUSER_LITE));
     target->usersock = usersock;
-    strcpy(target->nickname, nickname);
+    target->nickname = nickname;
     target->role = 0;
     target->opponentID = -1;
 }

@@ -21,10 +21,10 @@ void* processRequest(void* arg)
     printf("%s\n", "someone connected");
     SOCKET* client = (SOCKET*)arg;
     int curr;
+    int winner;
     if (preLoginRoutine(client) == SOCKET_ERROR) return 0;
     char rawData[INBUFSIZE] = {0};
     if(recv(*client, rawData, INBUFSIZE, 0) == SOCKET_ERROR) printf("%d\n", WSAGetLastError());
-    printf("amogus = '%s'\n", rawData);
     PACKET *inputData = decodePacket(rawData);
     if (inputData->packetSubtype == SendLoginData) {
         char loginLen = inputData->packetData[0];
@@ -36,18 +36,19 @@ void* processRequest(void* arg)
         printf("login is %s\n", login);
         USR[USRSZ++] = *initUser(login, *client); // юзверь авторизован
         curr = USRSZ - 1;
+        //send(USR[curr].usersock, login, strlen(login), 0);
         PACKET* ok = initPacketFromParams(ServicePacket, ServiceSuccess, 0, 0);
         char* okRaw = encodePacket(ok);
         send(*client, okRaw, strlen(okRaw), 0);
     }
-
-    /*int exitFlag = 0;
+    int exitFlag = 0;
     //char boardSize;
     int opponent;
     while(!exitFlag) {
         char rawData[INBUFSIZE] = {0};
-        recv(*client, rawData, INBUFSIZE, 0);
+        int rawdataSize = recv(USR[curr].usersock, rawData, INBUFSIZE, 0);
         PACKET *inputData = decodePacket(rawData);
+        printf("thread of %s\n", USR[curr].nickname);
         if(inputData->packetSubtype == ServiceUserAction && inputData->packetCode == GameRequestAction) {
             //boardSize = inputData->packetData[0];
             int idx = findNickname(USR, USRSZ, (inputData->packetData + 2));
@@ -60,6 +61,7 @@ void* processRequest(void* arg)
             }
             PACKET* otherInvite = initPacketFromParams(ServicePacket, ServiceUserAction, GameRequestAction, inviteData);
             char* rawInvite = encodePacket(otherInvite);
+            printf("invite %s -> %s\n", USR[curr].nickname, USR[idx].nickname);
             send(opponent, rawInvite, strlen(rawInvite), 0);
             USR[curr].role = CrossCell;
             USR[curr].opponentID = idx;
@@ -74,111 +76,45 @@ void* processRequest(void* arg)
                     break;
                 }
             }
+            printf("accept %s -> %s\n", USR[curr].nickname, USR[USR[curr].opponentID].nickname);
             PACKET* ok = initPacketFromParams(ServicePacket, ServiceSuccess, 0, 0);
             char* okRaw = encodePacket(ok);
             send(USR[USR[curr].opponentID].usersock, okRaw, strlen(okRaw), 0);
-            PACKET* requestMove = initPacketFromParams(DataRequestPacket, RequestPlayerMove, 0, encodeBoard(USR[curr].game));
+            printf("%s playing with %s\n", USR[curr].nickname, USR[USR[curr].opponentID].nickname);
+            printf("curr is %d, opponent is %d", USR[curr].role, USR[USR[curr].opponentID].role);
+            char* boardEncoding = encodeBoard(USR[curr].game);
+            PACKET* requestMove = initPacketFromParams(DataRequestPacket, RequestPlayerMove, 0, boardEncoding);
             char* requestMoveRaw = encodePacket(requestMove);
-            send(USR[USR[curr].opponentID].usersock, requestMoveRaw, strlen(requestMoveRaw), 0);
+            send(USR[curr].usersock, requestMoveRaw, strlen(requestMoveRaw), 0);
+            printf("\nrequest move -> %s\n", USR[curr].nickname);
         }
-        else if(USR[curr].game != NULL && inputData->packetSubtype == SendPlayerMove) {
+        else if(inputData->packetSubtype == SendPlayerMove) {
             char x = inputData->packetData[0];
             char y = inputData->packetData[1];
-            send(USR[USR[curr].opponentID].usersock, rawData, strlen(rawData), 0);
+            printf("%s moving on %d, %d. Sending this to %s\n", USR[curr].nickname, x, y, USR[USR[curr].opponentID].nickname);
+            send(USR[USR[curr].opponentID].usersock, rawData, rawdataSize, 0);
             PACKET* ok = initPacketFromParams(ServicePacket, ServiceSuccess, 0, 0);
             char* okRaw = encodePacket(ok);
-            send(*client, okRaw, strlen(okRaw), 0);
+            send(USR[curr].usersock, okRaw, strlen(okRaw), 0);
             makeMove(USR[curr].game, x, y, USR[curr].role);
             makeMove(USR[USR[curr].opponentID].game, x, y, USR[curr].role);
-            PACKET* requestMove = initPacketFromParams(DataRequestPacket, RequestPlayerMove, 0, encodeBoard(USR[curr].game));
+            char* boardEncoding = encodeBoard(USR[curr].game);
+            PACKET* requestMove = initPacketFromParams(DataRequestPacket, RequestPlayerMove, 0, boardEncoding);
             char* requestMoveRaw = encodePacket(requestMove);
             send(USR[USR[curr].opponentID].usersock, requestMoveRaw, strlen(requestMoveRaw), 0);
         }
-
-        if(USR[curr].game && checkBoardWinConditions(USR[curr].game) != GAMEBOARD_NO_WIN) exitFlag = 1;
+        winner = checkBoardWinConditions(USR[curr].game);
+        if(USR[curr].game && winner != GAMEBOARD_NO_WIN) exitFlag = 1;
     }
-
-    /* else if (inputData->packetSubtype == RequestCheckUsername) {
-            int okflag = checkNickname(users, usersz, inputData->packetData);
-            if(okflag) {
-                PACKET* success = initPacketFromParams(ServicePacket, ServiceSuccess, 0, 0);
-                char* raw = encodePacket(success);
-                send(*client, raw, (int)strlen(raw), 0);
-            } else {
-                PACKET* err = initPacketFromParams(ServicePacket, ServiceErrorPacket, NoRegUsernameTakenErr, 0);
-                char* raw = encodePacket(err);
-                send(*client, raw, (int)strlen(raw), 0);
-            }
-
-        } else if (inputData->packetSubtype == SendRegisterRequest) {
-            char loginLen = inputData->packetData[0];
-            char passLen = inputData->packetData[loginLen + 1];
-            char* login = (char*)calloc(loginLen + 1, sizeof(char));
-            char* pass = (char*)calloc(passLen + 1, sizeof(char));
-            for(int i = 0; i < loginLen; i++) {
-                login[i] = inputData->packetData[i + 1];
-            }
-            for(int i = 0; i < passLen; i++) {
-                pass[i] = inputData->packetData[loginLen + i + 2];
-            }
-            if(checkNickname(users, usersz, login)) {
-                users[usersz++] = *deserialize(inputData->packetData);
-                PACKET* success = initPacketFromParams(ServicePacket, ServiceSuccess, 0, 0);
-                char* raw = encodePacket(success);
-                send(*client, raw, (int)strlen(raw), 0);
-                loginWorkflowFlag = 0;
-                users[usersz - 1].isAuth = 1;
-                users[usersz - 1].usersock = *client;
-            }
-            else {
-                PACKET* err = initPacketFromParams(ServicePacket, ServiceErrorPacket, NoRegUsernameTakenErr, 0);
-                char* raw = encodePacket(err);
-                send(*client, raw, (int)strlen(raw), 0);
-            }
-        } else {
-            // хуйня
-        }
-    }*/
-    /*
-    int gamepreparationflag = 1;
-    char rawDataBuf[INBUFSIZE] = { 0 };
-    GAME_BOARD* target;
-    while(gamepreparationflag) {
-        recv(*client, rawDataBuf, INBUFSIZE, 0);
-        PACKET* leninaPaket = decodePacket(rawDataBuf);
-        if (leninaPaket->packetCode == GameRequestAction) {
-            char boardSize = leninaPaket->packetData[0];
-            char nickLen = leninaPaket->packetData[1];
-            char* nick = (char*)calloc(nickLen + 1, sizeof(char));
-            char* outdata = (char*)calloc(nickLen + 2, sizeof(char));
-            outdata[0] = boardSize;
-            outdata[1] = nickLen;
-            for(int i = 0; i < nickLen; i++) {
-                nick[i] = leninaPaket->packetData[i + 2];
-                outdata[i+2] = leninaPaket->packetData[i + 2];
-            }
-            SERVERUSER_LITE* opponent = &users[findNickname(users, usersz, nick)];
-            PACKET* serverInvite = initPacketFromParams(ServicePacket, ServiceUserAction, GameRequestAction, outdata);
-            char* rawinvite = encodePacket(serverInvite);
-            send(opponent->usersock, rawinvite, strlen(rawinvite), 0);
-            char rawRespBuf[INBUFSIZE] = { 0 };
-            recv(opponent->usersock, rawRespBuf, INBUFSIZE, 0);
-            PACKET* confirmation = decodePacket(rawRespBuf);
-            if(confirmation->packetCode == GameAcceptAction) {
-                PACKET* ok = initPacketFromParams(ServicePacket, ServiceSuccess, 0, 0);
-                char* rawok = encodePacket(ok);
-                send(*client, rawok, strlen(rawok), 0);
-                gamepreparationflag = 0;
-                target = initNewBoard(boardSize);
-            }
-        }
-    }
-
-    int gameflag = 0;*/
+    if(USR[curr].role == winner) printf("%s has won!!\n", USR[curr].nickname);
+    printf("someone has won!\n");
 }
 
 int main(int argc,char** argv)
 {
+    /*char logindata[2] = {2, 2};
+    PACKET* sendLoginData = initPacketFromParams(DataSendPacket, SendPlayerMove, 0, logindata);
+    char* enc = encodePacket(sendLoginData);*/
     WSADATA sdata;
     WSAStartup(MAKEWORD(2, 2), &sdata);
     SOCKET serverSock = socket(AF_INET, SOCK_STREAM, 0);
@@ -188,11 +124,13 @@ int main(int argc,char** argv)
     addr.sin_addr.S_un.S_addr = inet_addr(SIP);
     bind(serverSock, (SOCKADDR*)&addr, sizeof(addr));
     listen(serverSock, 100);
-    SOCKADDR_IN clientData;
-    int clientDataLen;
-    SOCKET client = accept(serverSock, (SOCKADDR*)&clientData, &clientDataLen);
-    pthread_t  thread;
-    pthread_create(&thread, NULL, processRequest, (void*)&client);
-    pthread_join(thread, NULL);
+    while(1) {
+        SOCKADDR_IN clientData;
+        int clientDataLen;
+        SOCKET client = accept(serverSock, (SOCKADDR *) &clientData, &clientDataLen);
+        pthread_t thread;
+        pthread_create(&thread, NULL, processRequest, (void *) &client);
+        //pthread_join(thread, NULL);
+    }
     return 0;
 }

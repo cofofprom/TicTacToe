@@ -6,7 +6,7 @@ set(CMAKE_C_STANDARD 11)
 find_package(Threads REQUIRED)
 
 add_executable(TTTClient Client/client.c clientNetworking/clientNetworkWorker.c clientNetworking/clientNetworkWorker.h)
-add_executable(TTTServer Server/server.c Server/utils.h Server/utils.c clientNetworking/packet.c clientNetworking/packet.h clientNetworking/packetEnums.h)
+add_executable(TTTServer Server/server.c Server/utils.h Server/utils.c clientNetworking/packet.c clientNetworking/packet.h clientNetworking/packetEnums.h gameboard/gameboard.c gameboard/gameboard.h)
 
 target_link_libraries(TTTClient ws2_32)
 target_link_libraries(TTTClient Threads::Threads)
