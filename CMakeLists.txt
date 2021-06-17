@@ -5,7 +5,22 @@ set(CMAKE_C_STANDARD 11)
 
 find_package(Threads REQUIRED)
 
-add_executable(TTTClient Client/client.c clientNetworking/clientNetworkWorker.c clientNetworking/clientNetworkWorker.h SetField/SetField.c SetField/SetField.h)
+set(SOURCES  clientNetworking/clientNetworkWorker.h
+        clientNetworking/clientNetworkWorker.c
+        clientNetworking/packet.h
+        clientNetworking/packet.c
+        clientNetworking/packetEnums.h
+        clientNetworking/packetQueue.h
+        clientNetworking/packetQueue.c
+        SetField/SetField.c
+        SetField/SetField.h
+        Client/clientGraphics.c
+        Client/clientGraphics.h
+        Client/eventDispatcher.c
+        Client/eventDispatcher.h)
+
+add_executable(TTTClient Client/client.c ${SOURCES} )
+
 add_executable(TTTServer Server/server.c Server/utils.h Server/utils.c)
 
 target_link_libraries(TTTClient ws2_32)
