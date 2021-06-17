@@ -36,6 +36,6 @@ int checkNickname(SERVERUSER_LITE* arr, int sz, const char* nickname);
 
 int findNickname(SERVERUSER_LITE* arr, int sz, const char* nick);
 
-int recvPacket(SOCKET* s, PACKET** p);
+int recvPacket(SOCKET s, PACKET** p);
 
 #endif //TICTACTOE_UTILS_H

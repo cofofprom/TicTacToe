@@ -30,7 +30,7 @@ void* processRequest(void* arg)
     char rawData[INBUFSIZE] = {0};
     PACKET *inputData;
     printf("%d socket waiting to receive\n", client);
-    recvPacket(&client, &inputData);
+    recvPacket(client, &inputData);
     printf("%d socket received\n", client);
 
     if (inputData->packetSubtype == SendLoginData) {
@@ -66,7 +66,8 @@ void* processRequest(void* arg)
     while(!exitFlag)
     {
         PACKET *inputData;
-        if (recvPacket(&client, &inputData) == SOCKET_ERROR)
+        //printf("recv of %d\n", client);
+        if (recvPacket(client, &inputData) == SOCKET_ERROR)
         {
             pthread_mutex_lock(&mutex);
             USR[curr].online = 0;
@@ -74,10 +75,7 @@ void* processRequest(void* arg)
             pthread_mutex_unlock(&mutex);
             return 0;
         }
-        //if(endgameconfirmationflag) printf("waiting for ok...");
-        pthread_mutex_lock(&mutex);
-        printf("thread of %s\n", USR[curr].nickname);
-        pthread_mutex_unlock(&mutex);
+        //printf("end recv of %d\n", client);
         if (inputData->packetSubtype == ServiceUserAction && inputData->packetCode == GameRequestAction)
         {
             //boardSize = inputData->packetData[0];
@@ -168,6 +166,7 @@ void* processRequest(void* arg)
             char x = inputData->packetData[0] - 1;
             char y = inputData->packetData[1] - 1;
             char *resend = encodePacket(inputData);
+            //printf("DEBUG resend = %s\n", resend);
             pthread_mutex_lock(&mutex);
             printf("%s moving on %d, %d. Sending this to %s\n", USR[curr].nickname, x, y, USR[USR[curr].opponentID].nickname);
             if (send(USR[USR[curr].opponentID].usersock, resend, strlen(resend), 0) == SOCKET_ERROR)
@@ -197,6 +196,7 @@ void* processRequest(void* arg)
                 char* winner = NULL;
                 if (USR[curr].role == winner1) winner = USR[curr].nickname;
                 else winner = USR[USR[curr].opponentID].nickname;
+                pthread_mutex_unlock(&mutex);
                 printf("%s won!\n", winner);
                 char* stopData = (char*)calloc(strlen(winner)+3, sizeof(char));
                 stopData[0] = 1;
@@ -208,14 +208,15 @@ void* processRequest(void* arg)
                 PACKET* endgame = initPacketFromParams(ServicePacket, ServiceEndGame, 0, stopData);
                 char* antihype = encodePacket(endgame);
                 //printf("winner data = %s\n", stopData);
-                send(USR[curr].usersock, antihype, strlen(antihype), 0);
-                send(USR[USR[curr].opponentID].usersock, antihype, strlen(antihype), 0);
-                printf("waiting for confirmation by ... %s and %s\n", USR[curr].nickname, USR[USR[curr].opponentID].nickname);
-                USR[curr].game = 0;
+                pthread_mutex_lock(&mutex);
+                printf("%d\n", send(USR[curr].usersock, antihype, strlen(antihype), 0));
+                printf("%d\n", send(USR[USR[curr].opponentID].usersock, antihype, strlen(antihype), 0));
+                //printf("waiting for confirmation by ... %s and %s\n", USR[curr].nickname, USR[USR[curr].opponentID].nickname);
+                /*USR[curr].game = 0;
                 USR[USR[curr].opponentID].game = 0;
                 USR[USR[curr].opponentID].opponentID = -1;
                 USR[curr].opponentID = -1;
-                pthread_mutex_unlock(&mutex);
+                pthread_mutex_unlock(&mutex);*/
                 endgameconfirmationflag = 1;
                 continue;
             }
@@ -233,7 +234,10 @@ void* processRequest(void* arg)
 
         }
         else if(endgameconfirmationflag && inputData->packetSubtype == ServiceSuccess) {
-            endgameconfirmationflag = 0;
+            pthread_mutex_lock(&mutex);
+            printf("ok received by %s\n", USR[curr].nickname);
+            pthread_mutex_unlock(&mutex);
+            endgameconfirmationflag = -1;
             continue;
         }
     }
