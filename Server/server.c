@@ -31,6 +31,7 @@ void* processRequest(void* arg)
     printf("%d socket waiting to receive\n", client);
     recvPacket(&client, &inputData);
     printf("%d socket received\n", client);
+
     if (inputData->packetSubtype == SendLoginData) {
         char loginLen = inputData->packetData[0];
         char* login = (char*)calloc(loginLen + 1, sizeof(char));
