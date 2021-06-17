@@ -17,11 +17,13 @@ set(SOURCES  clientNetworking/clientNetworkWorker.h
         Client/clientGraphics.c
         Client/clientGraphics.h
         Client/eventDispatcher.c
-        Client/eventDispatcher.h)
+        Client/eventDispatcher.h
+        Server/utils.c
+        Server/utils.h)
 
 add_executable(TTTClient Client/client.c ${SOURCES} )
 
-add_executable(TTTServer Server/server.c Server/utils.h Server/utils.c)
+add_executable(TTTServer Server/server.c ${SOURCES})
 
 target_link_libraries(TTTClient ws2_32)
 target_link_libraries(TTTClient Threads::Threads)
@@ -35,7 +37,6 @@ add_executable(userdataTest seatest/seatest.c userdata/userdata.c userdata/userd
 add_executable(playerlistTest seatest/seatest.c tests/playerlistTests/playerlistTests.c playerlist/playerlist.c playerlist/playerlist.h userdata/userdata.c)
 add_executable(packetQueueTest seatest/seatest.c clientNetworking/packet.c clientNetworking/packetEnums.h clientNetworking/packetQueue.c clientNetworking/packetQueue.h tests/packetqueueTests/packetQueueTests.c)
 add_executable(SetFieldTest  seatest/seatest.c seatest/seatest.h tests/SetField/SetFieldTest.c SetField/SetField.c SetField/SetField.h)
-
 add_executable(CNWtestServer tests/clientNetworking/CNWtestServer.c clientNetworking/clientNetworkWorker.c clientNetworking/packet.h clientNetworking/packet.c clientNetworking/packetQueue.c clientNetworking/packetEnums.h)
 target_link_libraries(CNWtestServer ws2_32)
 target_link_libraries(CNWtestServer Threads::Threads)

@@ -96,6 +96,6 @@ GAME_BOARD* decodeBoard(char* encoding);
 ///@retval GAMEBOARD_SUCCESS on success
 ///@retval GAMEBOARD_BOARD_TOO_LARGE if board size is >10
 ///@retval GAMEBOARD_NULL_PTR_ERROR if NULL pointer is encountered
-int drawCLIgameboard(GAME_BOARD* targetBoard);
+//int drawCLIgameboard(GAME_BOARD* targetBoard);
 
 #endif //TICTACTOE_GAMEBOARD_H
