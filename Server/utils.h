@@ -22,6 +22,7 @@ typedef struct {
     int role;
     int opponentID;
     GAME_BOARD* game;
+    int online;
 } SERVERUSER_LITE;
 
 SERVERUSER_LITE* initUser(char* nickname, SOCKET usersock);
@@ -34,5 +35,7 @@ int preLoginRoutine(SOCKET* s);
 int checkNickname(SERVERUSER_LITE* arr, int sz, const char* nickname);
 
 int findNickname(SERVERUSER_LITE* arr, int sz, const char* nick);
+
+int recvPacket(SOCKET* s, PACKET** p);
 
 #endif //TICTACTOE_UTILS_H
