@@ -49,6 +49,8 @@ int main(int argc, char** argv)
     int currentBoardRow = 0;
     int currentBoardColumn = 0;
     int inGame = 0;
+    int boardRedraw = 0;
+    int awaitingMove = 0;
 
     MENU* menus = calloc(10,sizeof(MENU));
     menus[mainMenu.menuId] = mainMenu;
@@ -63,6 +65,8 @@ int main(int argc, char** argv)
     char* login = calloc(33,sizeof(char));
     char* requestedGameNickname = calloc(33,sizeof(char));
     char test[] = "Test\0";
+    CELL_TYPE myCellType = -1;
+    CELL_TYPE oppCellType = -1;
     KEY_EVENT_RECORD ker;
 
     HANDLE consoleScr = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -149,6 +153,7 @@ int main(int argc, char** argv)
                                 case KEYCODE_UPARROW:
                                     if (inGame) {
                                         currentBoardRow--;
+                                        boardRedraw = 1;
                                         if (currentBoardRow < 0) {
                                             currentBoardRow = 2;
                                         }
@@ -163,6 +168,7 @@ int main(int argc, char** argv)
 
                                 case KEYCODE_DOWNARROW:
                                     if (inGame) {
+                                        boardRedraw = 1;
                                         currentBoardRow++;
                                         if (currentBoardRow > 2) {
                                             currentBoardRow = 0;
@@ -178,7 +184,12 @@ int main(int argc, char** argv)
 
                                 case KEYCODE_ENTER:
                                     if (inGame) {
-                                        //TODO ingame controls
+                                        if(awaitingMove) {
+                                            boardRedraw = 1;
+                                            awaitingMove = 0;
+                                            sendBoardMove(clientWorker, currentBoardRow, currentBoardColumn);
+                                            makeMove(currentBoard,currentBoardRow,currentBoardColumn,myCellType);
+                                        }
                                     } else {
                                         switch (currentSubmenuIndex) {
                                             case 1:
@@ -198,6 +209,9 @@ int main(int argc, char** argv)
                                                     printf("Game accepted\n");
                                                     currentBoard = initNewBoard(3);
                                                     inGame = 1;
+                                                    boardRedraw = 1;
+                                                    myCellType = CrossCell;
+                                                    oppCellType = ZeroCell;
                                                 }
                                                 free(lastPacket);
                                                 break;
@@ -208,6 +222,7 @@ int main(int argc, char** argv)
                                 case KEYCODE_LEFTARROW:
                                     if (inGame)
                                     {
+                                        boardRedraw = 1;
                                         currentBoardColumn--;
                                         if (currentBoardColumn < 0) {
                                             currentBoardColumn = 2;
@@ -217,6 +232,7 @@ int main(int argc, char** argv)
 
                                 case KEYCODE_RIGHTARROW:
                                     if (inGame) {
+                                        boardRedraw = 1;
                                         currentBoardColumn++;
                                         if (currentBoardColumn > 2) {
                                             currentBoardColumn = 0;
@@ -245,6 +261,7 @@ int main(int argc, char** argv)
         {
             lastPacket = getPacketFromClientWorker(clientWorker,&workerErr);
             printf("Got packet: %d %d %d",lastPacket->packetType,lastPacket->packetSubtype,lastPacket->packetCode);
+            if (lastPacket->packetData != NULL) printf("Packet data: %s",lastPacket->packetData);
             switch(lastPacket->packetType)
             {
                 case ServicePacket:
@@ -260,8 +277,13 @@ int main(int argc, char** argv)
                                     char ans = getchar();
                                     if(ans == 'Y' || ans == 'y')
                                     {
+                                        acceptGameRequest(clientWorker,lastPacket->packetData+2);
                                         currentBoard = initNewBoard(3);
                                         inGame = 1;
+                                        boardRedraw = 1;
+                                        awaitingMove = 1;
+                                        myCellType = ZeroCell;
+                                        oppCellType = CrossCell;
                                     }else{
                                         declineGameRequest(clientWorker,lastPacket->packetData+2);
                                         system("cls");
@@ -273,13 +295,42 @@ int main(int argc, char** argv)
                             break;
                     }
                     break;
+
+                case DataSendPacket:
+                    switch(lastPacket->packetSubtype)
+                    {
+                        case SendPlayerMove:
+                            printf("SendMove");
+                            awaitingMove = 1;
+                            //makeMove(currentBoard,lastPacket->packetData[0] - 1, lastPacket->packetData[1]-1,oppCellType);
+                            boardRedraw = 1;
+                            break;
+                    }
+                    break;
+
+                case DataRequestPacket:
+                    switch(lastPacket->packetSubtype)
+                    {
+                        case RequestPlayerMove:
+                            //printf("RequestMove");
+                            awaitingMove = 1;
+                            GAME_BOARD* newBoard = decodeBoard(lastPacket->packetData);
+                            memcpy(currentBoard->board,lastPacket->packetData+1,9);
+                            freeGameBoard(newBoard);
+                            boardRedraw = 1;
+                            break;
+                    }
+                    break;
             }
             freePacket(lastPacket);
         }
 
         if(inGame)
         {
-            draw3x3BoardAt(consoleScr,currentBoard,currentBoardRow,currentBoardColumn,2,2);
+            if (boardRedraw == 1) {
+                draw3x3BoardAt(consoleScr, currentBoard, currentBoardRow, currentBoardColumn, 2, 2);
+                boardRedraw = 0;
+            }
         }
     }
 

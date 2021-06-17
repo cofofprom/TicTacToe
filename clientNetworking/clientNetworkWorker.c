@@ -149,6 +149,7 @@ void* workerMain(void* attr) {
         result = recv(targetWorker->networkSocket,packetStart,2,MSG_PEEK);
         pthread_mutex_unlock(&targetWorker->socketMutex);
 
+
         //If there are no bytes available, or we are waiting for a new packet but its length is not fully available, continue onto next cycle
         if(result == SOCKET_ERROR || (result < 2 && currentIncomingEncoding == NULL))
         {
@@ -188,6 +189,7 @@ void* workerMain(void* attr) {
             free(currentIncomingEncoding);
             currentIncomingEncoding = NULL;
             incomingBytesLeft = 0;
+            //printf("Worker: packet decoded");
             continue;
         }
     }

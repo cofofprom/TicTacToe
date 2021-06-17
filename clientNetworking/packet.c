@@ -88,7 +88,7 @@ PACKET *decodePacket(char *encoding) {
     currentEncodingPos++;
 
     if (newPacket->packetSubtype == ServiceErrorPacket ||
-        newPacket->packetSubtype == ServiceUserAction ||
+        newPacket->packetType == ServicePacket && newPacket->packetSubtype == ServiceUserAction ||
         newPacket->packetSubtype == RequestPlayerList ||
         newPacket->packetSubtype == ServiceNotificationPacket) {
         newPacket->packetCode = *currentEncodingPos;
