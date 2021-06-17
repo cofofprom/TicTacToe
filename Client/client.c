@@ -302,7 +302,7 @@ int main(int argc, char** argv)
                         case SendPlayerMove:
                             printf("SendMove");
                             awaitingMove = 1;
-                            //makeMove(currentBoard,lastPacket->packetData[0] - 1, lastPacket->packetData[1]-1,oppCellType);
+                            makeMove(currentBoard,lastPacket->packetData[0] - 1, lastPacket->packetData[1]-1,oppCellType);
                             boardRedraw = 1;
                             break;
                     }
