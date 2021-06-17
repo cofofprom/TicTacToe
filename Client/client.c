@@ -190,10 +190,11 @@ int main(int argc, char** argv)
                                                 printf("Awaiting response...\n");
                                                 while (clientWorker->receivedPacketQueue->length == 0) {}
                                                 lastPacket = getPacketFromClientWorker(clientWorker, &workerErr);
+                                                printf("Got packet");
                                                 if (lastPacket->packetCode == GameDeclineAction) {
                                                     printf("Game declined");
                                                     drawMenu(consoleScr, &mainMenu, currentSubmenuIndex, 2, 2);
-                                                } else if (lastPacket->packetCode == GameAcceptAction) {
+                                                } else if (lastPacket->packetSubtype == ServiceSuccess) {
                                                     printf("Game accepted\n");
                                                     currentBoard = initNewBoard(3);
                                                     inGame = 1;
