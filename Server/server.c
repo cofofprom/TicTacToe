@@ -6,6 +6,7 @@
 #include "..\clientNetworking\packet.h"
 #include "..\clientNetworking\packetEnums.h"
 #include "utils.h"
+#include "windows.h"
 //#include "..\gameboard\gameboard.h"
 
 #define SIP "127.0.0.1"
@@ -13,19 +14,23 @@
 #define INBUFSIZE 1024
 #define USRCOUNT 100
 
+pthread_mutex_t mutex;
+int USRLOCK = 0;
 SERVERUSER_LITE USR[USRCOUNT] = { 0 };
 int USRSZ = 0;
 
 void* processRequest(void* arg)
 {
-    printf("%s\n", "someone connected");
-    SOCKET* client = (SOCKET*)arg;
+    SOCKET client = *(SOCKET*)arg;
     int curr;
     int winner;
-    if (preLoginRoutine(client) == SOCKET_ERROR) return 0;
+    if (preLoginRoutine(&client) == SOCKET_ERROR) return 0;
+    printf("someone connected %d waiting for login...\n", client);
     char rawData[INBUFSIZE] = {0};
-    if(recv(*client, rawData, INBUFSIZE, 0) == SOCKET_ERROR) printf("%d\n", WSAGetLastError());
-    PACKET *inputData = decodePacket(rawData);
+    PACKET *inputData;
+    printf("%d socket waiting to receive\n", client);
+    recvPacket(&client, &inputData);
+    printf("%d socket received\n", client);
     if (inputData->packetSubtype == SendLoginData) {
         char loginLen = inputData->packetData[0];
         char* login = (char*)calloc(loginLen + 1, sizeof(char));
@@ -33,21 +38,29 @@ void* processRequest(void* arg)
             login[i] = inputData->packetData[i + 1];
         }
         login[loginLen] = 0;
-        printf("login is %s\n", login);
-        USR[USRSZ++] = *initUser(login, *client); // юзверь авторизован
+        pthread_mutex_lock(&mutex);
+        USR[USRSZ++] = *initUser(login, client); // юзверь авторизован
         curr = USRSZ - 1;
+        pthread_mutex_unlock(&mutex);
+        printf("login is %s idx is %d sock is %d while inner is %d\n", login, curr, client, USR[curr].usersock);
         //send(USR[curr].usersock, login, strlen(login), 0);
         PACKET* ok = initPacketFromParams(ServicePacket, ServiceSuccess, 0, 0);
         char* okRaw = encodePacket(ok);
-        send(*client, okRaw, strlen(okRaw), 0);
+        pthread_mutex_lock(&mutex);
+        send(USR[curr].usersock, okRaw, strlen(okRaw), 0);
+        pthread_mutex_unlock(&mutex);
+        printf("USR[%d] is sent\n", curr);
     }
     int exitFlag = 0;
     //char boardSize;
     int opponent;
     while(!exitFlag) {
-        char rawData[INBUFSIZE] = {0};
-        int rawdataSize = recv(USR[curr].usersock, rawData, INBUFSIZE, 0);
-        PACKET *inputData = decodePacket(rawData);
+        PACKET *inputData;
+        if(recvPacket(&USR[curr].usersock, &inputData) == SOCKET_ERROR) {
+            USR[curr].online = 0;
+            printf("USR[%d] known as '%s' became offline\n", curr, USR[curr].nickname);
+            return 0;
+        }
         printf("thread of %s\n", USR[curr].nickname);
         if(inputData->packetSubtype == ServiceUserAction && inputData->packetCode == GameRequestAction) {
             //boardSize = inputData->packetData[0];
@@ -89,10 +102,11 @@ void* processRequest(void* arg)
             printf("\nrequest move -> %s\n", USR[curr].nickname);
         }
         else if(inputData->packetSubtype == SendPlayerMove) {
-            char x = inputData->packetData[0];
-            char y = inputData->packetData[1];
+            char x = inputData->packetData[0] - 1;
+            char y = inputData->packetData[1] - 1;
+            char* resend = encodePacket(inputData);
             printf("%s moving on %d, %d. Sending this to %s\n", USR[curr].nickname, x, y, USR[USR[curr].opponentID].nickname);
-            send(USR[USR[curr].opponentID].usersock, rawData, rawdataSize, 0);
+            send(USR[USR[curr].opponentID].usersock, resend, strlen(resend), 0);
             PACKET* ok = initPacketFromParams(ServicePacket, ServiceSuccess, 0, 0);
             char* okRaw = encodePacket(ok);
             send(USR[curr].usersock, okRaw, strlen(okRaw), 0);
@@ -112,9 +126,10 @@ void* processRequest(void* arg)
 
 int main(int argc,char** argv)
 {
-    /*char logindata[2] = {2, 2};
+    char logindata[2] = {1, 1};
     PACKET* sendLoginData = initPacketFromParams(DataSendPacket, SendPlayerMove, 0, logindata);
-    char* enc = encodePacket(sendLoginData);*/
+    char* enc = encodePacket(sendLoginData);
+    pthread_mutex_init(&mutex, NULL);
     WSADATA sdata;
     WSAStartup(MAKEWORD(2, 2), &sdata);
     SOCKET serverSock = socket(AF_INET, SOCK_STREAM, 0);
@@ -128,9 +143,13 @@ int main(int argc,char** argv)
         SOCKADDR_IN clientData;
         int clientDataLen;
         SOCKET client = accept(serverSock, (SOCKADDR *) &clientData, &clientDataLen);
+        u_long mode = 1;
+        ioctlsocket(client, FIONBIO, &mode);
         pthread_t thread;
         pthread_create(&thread, NULL, processRequest, (void *) &client);
         //pthread_join(thread, NULL);
+        pthread_detach(thread);
+        Sleep(100);
     }
     return 0;
 }

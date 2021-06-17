@@ -4,7 +4,9 @@ int preLoginRoutine(SOCKET* client) {
     PACKET* loginRequest = initPacketFromParams(DataRequestPacket, LoginRequest, 0, 0);
     char* rawPacket = encodePacket(loginRequest);
     freePacket(loginRequest);
-    return send(*client, rawPacket, (int)strlen(rawPacket), 0);
+    int retval = send(*client, rawPacket, (int)strlen(rawPacket), 0);
+    //printf("ERROR IS %d", WSAGetLastError());
+    return retval;
 }
 
 char* serialize(SERVERUSER_LITE* user) {
@@ -52,7 +54,7 @@ int checkNickname(SERVERUSER_LITE* arr, int sz, const char* nickname) {
 
 int findNickname(SERVERUSER_LITE* arr, int sz, const char* nick) {
     for(int i = 0; i < sz; i++) {
-        if(!strcmp(arr[i].nickname, nick)) return i;
+        if(!strcmp(arr[i].nickname, nick) && arr[i].online) return i;
     }
     return -1;
 }
@@ -63,4 +65,34 @@ SERVERUSER_LITE* initUser(char* nickname, SOCKET usersock) {
     target->nickname = nickname;
     target->role = 0;
     target->opponentID = -1;
+    target->online = 1;
+}
+
+int recvPacket(SOCKET* s, PACKET** p) {
+    short packetLen;
+    char* packet = NULL;
+    char* packetLenArr = (char*)calloc(3, sizeof(char));
+    int waitingForPacket = 1;
+    do {
+        int bytes = recv(*s, packetLenArr, 2, MSG_PEEK);
+        if (bytes == 2) {
+            recv(*s, packetLenArr, 2, 0);
+            packetLenArr[0]--;
+            packetLenArr[1]--;
+            memcpy(&packetLen, packetLenArr, sizeof(short));
+            packet = (char*)calloc(packetLen + 3, sizeof(char));
+        } else if (bytes == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK) return SOCKET_ERROR;
+    } while(packet == NULL);
+    while(waitingForPacket) {
+        int bytes = recv(*s, packet, packetLen, MSG_PEEK);
+        if(bytes == packetLen) {
+            recv(*s, packet + 2, packetLen, 0);
+            memcpy(packet, &packetLen, sizeof(short));
+            packet[0]++;
+            packet[1]++;
+            waitingForPacket = 0;
+        } else if (bytes == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK) return SOCKET_ERROR;
+    }
+    *p = decodePacket(packet);
+    return strlen(packet);
 }
