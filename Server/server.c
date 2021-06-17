@@ -9,7 +9,7 @@
 //#include "..\gameboard\gameboard.h"
 
 #define SIP "127.0.0.1"
-#define SPORT 80
+#define SPORT 5510
 #define INBUFSIZE 1024
 #define USRCOUNT 100
 

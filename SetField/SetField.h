@@ -38,8 +38,8 @@
 #define RIGHT_3X    658
 
 //Аттрибуты для вывода текста с разными цветами и фоном
-#define BLACK_ON_WHITE  240
-#define WHITE_ON_BLACK  7
+#define BLACK_ON_WHITE  BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED
+#define WHITE_ON_BLACK  FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN
 #define FULL_WHITE      255
 #define FULL_BLACK      0
 

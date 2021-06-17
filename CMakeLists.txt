@@ -18,6 +18,10 @@ set(SOURCES  clientNetworking/clientNetworkWorker.h
         Client/clientGraphics.h
         Client/eventDispatcher.c
         Client/eventDispatcher.h
+        gameboard/gameboard.c
+        gameboard/gameboard.h
+        gamestate/gamestate.c
+        gamestate/gamestate.h
         Server/utils.c
         Server/utils.h)
 
