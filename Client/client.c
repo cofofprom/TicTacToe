@@ -297,6 +297,23 @@ int main(int argc, char** argv)
                             }
                             break;
 
+                        case ServiceEndGame:
+                            if(inGame)
+                            {
+                                char reason = lastPacket->packetData[0];
+                                switch(reason)
+                                {
+                                    case 1:
+                                        break;
+
+                                    case 2:
+                                        break;
+                                    case 3:
+                                        break;
+                                }
+                            }
+                            break;
+
                         default:
                             break;
                     }
