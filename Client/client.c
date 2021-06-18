@@ -51,6 +51,7 @@ int main(int argc, char** argv)
     int inGame = 0;
     int boardRedraw = 0;
     int awaitingMove = 0;
+    int endgameWait = 0;
 
     MENU* menus = calloc(10,sizeof(MENU));
     menus[mainMenu.menuId] = mainMenu;
@@ -151,6 +152,7 @@ int main(int argc, char** argv)
                                     break;
 
                                 case KEYCODE_UPARROW:
+                                    if(endgameWait) break;
                                     if (inGame) {
                                         currentBoardRow--;
                                         boardRedraw = 1;
@@ -167,6 +169,7 @@ int main(int argc, char** argv)
                                     break;
 
                                 case KEYCODE_DOWNARROW:
+                                    if(endgameWait) break;
                                     if (inGame) {
                                         boardRedraw = 1;
                                         currentBoardRow++;
@@ -183,6 +186,12 @@ int main(int argc, char** argv)
                                     break;
 
                                 case KEYCODE_ENTER:
+                                    if(endgameWait)
+                                    {
+                                        endgameWait = 0;
+                                        inGame = 0;
+                                        awaitingMove = 0;
+                                    }
                                     if (inGame) {
                                         if(awaitingMove) {
                                             boardRedraw = 1;
@@ -220,6 +229,7 @@ int main(int argc, char** argv)
                                     break;
 
                                 case KEYCODE_LEFTARROW:
+                                    if(endgameWait) break;
                                     if (inGame)
                                     {
                                         boardRedraw = 1;
@@ -231,6 +241,7 @@ int main(int argc, char** argv)
                                     break;
 
                                 case KEYCODE_RIGHTARROW:
+                                    if(endgameWait) break;
                                     if (inGame) {
                                         boardRedraw = 1;
                                         currentBoardColumn++;
@@ -304,11 +315,19 @@ int main(int argc, char** argv)
                                 switch(reason)
                                 {
                                     case 1:
+                                        printf("OpponentLeft\n");
                                         break;
 
                                     case 2:
+                                        printf("Player %s won!\n", lastPacket->packetData+2);
+                                        char foo = getchar();
+                                        inGame = 0;
+                                        awaitingMove = 0;
+                                        freeGameBoard(currentBoard);
+                                        drawMenu(consoleScr, &menus[currentMenuId], currentSubmenuIndex, 2, 2);
                                         break;
                                     case 3:
+                                        printf("Tie\n");
                                         break;
                                 }
                             }
