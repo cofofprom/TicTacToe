@@ -105,3 +105,50 @@ int recvPacket(SOCKET s, PACKET** p) {
     //printf("DEBUG rawpacket = %s\n", packet);
     return strlen(packet);
 }
+
+char* playerList(SERVERUSER_LITE* arr, int size)
+{
+    char ListOfPlayers[STRING_SIZE] = {0};
+    char temp[STRING_SIZE] = {0};
+    int n = size, ptr = 0;
+    while (n > 9)
+    {
+        temp[ptr++] = (n % 10) + '0';
+        n /= 10;
+    }
+    temp[ptr++] = n + '0';
+    temp[ptr] = '\0';
+    char t;
+    for (int i = 0; i < ptr / 2; i++)
+    {
+        t = temp[i];
+        temp[i] = temp[ptr - 1 - i];
+        temp[ptr - 1 - i] = t;
+    }
+    strcpy(ListOfPlayers, temp);
+    strcat(ListOfPlayers, "//");
+    for (int i=0; i<size; i++)
+    {
+        int LenOfNickname = strlen(arr[i].nickname);
+        char tmp[STRING_SIZE] = {0};
+        int ptr = 0;
+        while (LenOfNickname > 9)
+        {
+            tmp[ptr++] = (LenOfNickname % 10) + '0';
+            LenOfNickname /= 10;
+        }
+        tmp[ptr++] = LenOfNickname + '0';
+        tmp[ptr] = '\0';
+        char t;
+        for (int i = 0; i < ptr / 2; i++)
+        {
+            t = tmp[i];
+            tmp[i] = tmp[ptr - 1 - i];
+            tmp[ptr - 1 - i] = t;
+        }
+        strcat(ListOfPlayers, tmp);
+        strcat(ListOfPlayers, "//");
+        strcat(ListOfPlayers, arr[i].nickname);
+    }
+    return ListOfPlayers;
+}
