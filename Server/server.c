@@ -158,7 +158,12 @@ void* processRequest(void* arg)
         else if (inputData->packetSubtype == ServiceUserAction && inputData->packetCode == GameDeclineAction)
         {
             printf("The opponent declined the offer\n");
-            //Предложение отклонено...
+            //Предложение отклонено... хахахах я думал ты сам напишешь
+            PACKET* error = initPacketFromParams(ServicePacket, ServiceErrorPacket, GameDeclinedErr, 0);
+            char* rerror = encodePacket(error);
+            pthread_mutex_lock(&mutex);
+            send(USR[curr].usersock, rerror, strlen(rerror), 0);
+            pthread_mutex_unlock(&mutex);
             return 0;
         }
         else if (inputData->packetSubtype == SendPlayerMove)
