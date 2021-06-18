@@ -52,6 +52,7 @@ int main(int argc, char** argv)
     int boardRedraw = 0;
     int awaitingMove = 0;
     int endgameWait = 0;
+    int viewingPlayerList = 0;
 
     MENU* menus = calloc(10,sizeof(MENU));
     menus[mainMenu.menuId] = mainMenu;
@@ -206,11 +207,19 @@ int main(int argc, char** argv)
                                     } else {
                                         switch (currentSubmenuIndex) {
                                             case 1:
-                                                system("cls");
-                                                printf("Enter opponent's nickname:\n");
+                                                do
+                                                {
+                                                    system("cls");
+                                                    printf("Enter opponent's nickname:\n");
+                                                    fflush(stdin);
+                                                    fgets(requestedGameNickname, 32, stdin);
+                                                    requestedGameNickname[strlen(requestedGameNickname) - 1] = 0;
+                                                    if(strcmp(login,requestedGameNickname) != 0)
+                                                    {
+                                                        break;
+                                                    }
+                                                }while(1);
                                                 fflush(stdin);
-                                                fgets(requestedGameNickname, 32, stdin);
-                                                requestedGameNickname[strlen(requestedGameNickname) - 1] = 0;
                                                 requestGame(clientWorker, 3, requestedGameNickname);
                                                 printf("Awaiting response...\n");
                                                 while (clientWorker->receivedPacketQueue->length == 0) {}
@@ -240,6 +249,11 @@ int main(int argc, char** argv)
                                                     }
                                                     free(lastPacket);
                                                 }
+                                                break;
+
+                                            case 2:
+                                                currentMenuId = 2;
+
                                                 break;
                                         }
                                     }

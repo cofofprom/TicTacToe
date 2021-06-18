@@ -115,3 +115,13 @@ void draw3x3BoardAt(HANDLE window, GAME_BOARD *targetBoard, int selectedRow, int
         }
     }
 }
+
+void drawPlayerlistAt(HANDLE window, PLAYERLIST targetPlayerlist, int x, int y, int maxAmount) {
+    char playerlistTitle[] = "Online players:";
+    printStrAtConsolePos(window,x,y,playerlistTitle,WHITE_ON_BLACK);
+    int iterlim = min(maxAmount,targetPlayerlist.playerListLength);
+    for(int i = 0; i < iterlim; i++)
+    {
+        printStrAtConsolePos(window,x+1,y+i,targetPlayerlist.playerdataList[i]->username,WHITE_ON_BLACK);
+    }
+}

@@ -3,6 +3,7 @@
 
 #include "../SetField/SetField.h"
 #include "../gameboard/gameboard.h"
+#include "../playerlist/playerlist.h"
 #include <windows.h>
 
 typedef struct menu_struct
@@ -22,5 +23,7 @@ typedef struct menu_struct
 void drawMenu(HANDLE window, MENU *targetMenu, int currentSubmenu, int x, int y);
 
 void draw3x3BoardAt(HANDLE window, GAME_BOARD* targetBoard, int selectedRow, int selectedColumn,int x, int y);
+
+void drawPlayerlistAt(HANDLE window, PLAYERLIST targetPlayerlist, int x, int y, int maxAmount);
 
 #endif //TICTACTOE_CLIENTGRAPHICS_H
