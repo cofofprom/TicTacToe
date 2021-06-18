@@ -222,11 +222,11 @@ void* processRequest(void* arg)
                 send(USR[curr].usersock, antihype, strlen(antihype), 0);
                 send(USR[USR[curr].opponentID].usersock, antihype, strlen(antihype), 0);
                 //printf("waiting for confirmation by ... %s and %s\n", USR[curr].nickname, USR[USR[curr].opponentID].nickname);
-                /*USR[curr].game = 0;
+                USR[curr].game = 0;
                 USR[USR[curr].opponentID].game = 0;
                 USR[USR[curr].opponentID].opponentID = -1;
                 USR[curr].opponentID = -1;
-                pthread_mutex_unlock(&mutex);*/
+                pthread_mutex_unlock(&mutex);
                 endgameconfirmationflag = 1;
                 continue;
             }
@@ -246,7 +246,7 @@ void* processRequest(void* arg)
         else if(endgameconfirmationflag && inputData->packetSubtype == ServiceSuccess) {
             pthread_mutex_lock(&mutex);
             printf("ok received by %s\n", USR[curr].nickname);
-            //send(USR[curr].usersock, "a", 1, 0);
+            //send(USR[curr].usersock, "\xFF", 1, 0);
             pthread_mutex_unlock(&mutex);
             endgameconfirmationflag = -1;
             continue;
