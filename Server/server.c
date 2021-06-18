@@ -171,7 +171,7 @@ void* processRequest(void* arg)
             }
             send(USR[oi].usersock, rerror, strlen(rerror), 0);
             pthread_mutex_unlock(&mutex);
-            //return 0;
+            return 0;
         }
         else if (inputData->packetSubtype == SendPlayerMove)
         {
