@@ -11,6 +11,7 @@
 #include "../clientNetworking/packetQueue.h"
 #include "../gameboard/gameboard.h"
 #include "../SetField/SetField.h"
+#include "../playerlist/playerlist.h"
 #include "clientGraphics.h"
 
 #pragma clang diagnostic push
@@ -46,6 +47,7 @@ int main(int argc, char** argv)
     mainMenu.numSubmenus = 3;
 
     GAME_BOARD* currentBoard = NULL;
+    PLAYERLIST* currentPlayerlist = NULL;
     int currentBoardRow = 0;
     int currentBoardColumn = 0;
     int inGame = 0;
@@ -253,7 +255,9 @@ int main(int argc, char** argv)
 
                                             case 2:
                                                 currentMenuId = 2;
-
+                                                requestFriendList(clientWorker);
+                                                currentPlayerlist = decodePlayerlist(lastPacket->packetData);
+                                                drawPlayerlistAt(consoleScr,currentPlayerlist,1,1,25);
                                                 break;
                                         }
                                     }
