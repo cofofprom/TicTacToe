@@ -108,47 +108,24 @@ int recvPacket(SOCKET s, PACKET** p) {
 
 char* playerList(SERVERUSER_LITE* arr, int size)
 {
-    char ListOfPlayers[STRING_SIZE] = {0};
-    char temp[STRING_SIZE] = {0};
-    int n = size, ptr = 0;
-    while (n > 9)
+    int sum = 0;
+    for (int i=0; i<size; i++)
     {
-        temp[ptr++] = (n % 10) + '0';
-        n /= 10;
+        sum += strlen(arr[i].nickname);
     }
-    temp[ptr++] = n + '0';
-    temp[ptr] = '\0';
-    char t;
-    for (int i = 0; i < ptr / 2; i++)
-    {
-        t = temp[i];
-        temp[i] = temp[ptr - 1 - i];
-        temp[ptr - 1 - i] = t;
-    }
-    strcpy(ListOfPlayers, temp);
-    strcat(ListOfPlayers, "//");
+    char *ListOfPlayers = (char*)calloc(size + sum + 2, 1);
+    ListOfPlayers[0] = (char)size;
+    int ptr = 1;
     for (int i=0; i<size; i++)
     {
         int LenOfNickname = strlen(arr[i].nickname);
-        char tmp[STRING_SIZE] = {0};
-        int ptr = 0;
-        while (LenOfNickname > 9)
+        ListOfPlayers[ptr] = (char)LenOfNickname;
+        ptr++;
+        for (int j=0; j<LenOfNickname; j++)
         {
-            tmp[ptr++] = (LenOfNickname % 10) + '0';
-            LenOfNickname /= 10;
+            ListOfPlayers[ptr] = arr[i].nickname[j];
+            ptr++;
         }
-        tmp[ptr++] = LenOfNickname + '0';
-        tmp[ptr] = '\0';
-        char t;
-        for (int i = 0; i < ptr / 2; i++)
-        {
-            t = tmp[i];
-            tmp[i] = tmp[ptr - 1 - i];
-            tmp[ptr - 1 - i] = t;
-        }
-        strcat(ListOfPlayers, tmp);
-        strcat(ListOfPlayers, "//");
-        strcat(ListOfPlayers, arr[i].nickname);
     }
     return ListOfPlayers;
 }
