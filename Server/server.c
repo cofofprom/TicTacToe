@@ -192,25 +192,34 @@ void* processRequest(void* arg)
             pthread_mutex_lock(&mutex);
             winner1 = checkBoardWinConditions(USR[curr].game);
             winner2 = checkBoardWinConditions(USR[USR[curr].opponentID].game);
-            if (USR[curr].game && winner1 != GAMEBOARD_NO_WIN && winner2 != GAMEBOARD_NO_WIN) {
+            int draw = 0;
+            if (winner1 == GAMEBOARD_NO_WIN && winner2 == GAMEBOARD_NO_WIN) {
+                for(int i; i < 9; i++) if (USR[curr].game->board[i] == EmptyCell) draw++;
+            }
+            if (USR[curr].game && (winner1 != GAMEBOARD_NO_WIN && winner2 != GAMEBOARD_NO_WIN || !draw)) {
                 char* winner = NULL;
-                if (USR[curr].role == winner1) winner = USR[curr].nickname;
-                else winner = USR[USR[curr].opponentID].nickname;
-                pthread_mutex_unlock(&mutex);
-                printf("%s won!\n", winner);
-                char* stopData = (char*)calloc(strlen(winner)+3, sizeof(char));
-                stopData[0] = 1;
-                stopData[1] = strlen(winner);
-                for(int i = 0; i < strlen(winner); i++) {
-                    stopData[i + 2] = winner[i];
+                int wlen = 0;
+                if(draw) {
+                    if (USR[curr].role == winner1) winner = USR[curr].nickname;
+                    else winner = USR[USR[curr].opponentID].nickname;
+                    wlen = strlen(winner);
                 }
-                stopData[strlen(winner)+2] = 0;
+                pthread_mutex_unlock(&mutex);
+                if(draw) printf("%s won!\n", winner);
+                else printf("withdraw!\n");
+                char* stopData = (char*)calloc(wlen+3, sizeof(char));
+                stopData[0] = 2;
+                stopData[1] = wlen;
+                for(int i = 2; i < wlen + 2; i++) {
+                    stopData[i] = winner[i - 2];
+                }
+                stopData[wlen+2] = 0;
                 PACKET* endgame = initPacketFromParams(ServicePacket, ServiceEndGame, 0, stopData);
                 char* antihype = encodePacket(endgame);
                 //printf("winner data = %s\n", stopData);
                 pthread_mutex_lock(&mutex);
-                printf("%d\n", send(USR[curr].usersock, antihype, strlen(antihype), 0));
-                printf("%d\n", send(USR[USR[curr].opponentID].usersock, antihype, strlen(antihype), 0));
+                send(USR[curr].usersock, antihype, strlen(antihype), 0);
+                send(USR[USR[curr].opponentID].usersock, antihype, strlen(antihype), 0);
                 //printf("waiting for confirmation by ... %s and %s\n", USR[curr].nickname, USR[USR[curr].opponentID].nickname);
                 /*USR[curr].game = 0;
                 USR[USR[curr].opponentID].game = 0;
