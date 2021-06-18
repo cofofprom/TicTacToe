@@ -101,6 +101,6 @@ int recvPacket(SOCKET s, PACKET** p) {
     }
     *p = decodePacket(packet);
     //if(strlen(packet)==1) printf("DEBUG = %s\n", packet);
-    printf("DEBUG rawpacket = %s\n", packet);
+    //printf("DEBUG rawpacket = %s\n", packet);
     return strlen(packet);
 }
