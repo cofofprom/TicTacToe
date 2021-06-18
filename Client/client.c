@@ -210,8 +210,8 @@ int main(int argc, char** argv)
                                                     currentBoard = initNewBoard(3);
                                                     inGame = 1;
                                                     boardRedraw = 1;
-                                                    myCellType = CrossCell;
-                                                    oppCellType = ZeroCell;
+                                                    myCellType = ZeroCell;
+                                                    oppCellType = CrossCell;
                                                 }
                                                 free(lastPacket);
                                                 break;
@@ -282,8 +282,8 @@ int main(int argc, char** argv)
                                         inGame = 1;
                                         boardRedraw = 1;
                                         awaitingMove = 1;
-                                        myCellType = ZeroCell;
-                                        oppCellType = CrossCell;
+                                        myCellType = CrossCell;
+                                        oppCellType = ZeroCell;
                                     }else{
                                         declineGameRequest(clientWorker,lastPacket->packetData+2);
                                         system("cls");
@@ -291,7 +291,13 @@ int main(int argc, char** argv)
                                     }
 
                                     break;
+
+                                default:
+                                    break;
                             }
+                            break;
+
+                        default:
                             break;
                     }
                     break;
@@ -313,13 +319,19 @@ int main(int argc, char** argv)
                     {
                         case RequestPlayerMove:
                             //printf("RequestMove");
-                            awaitingMove = 1;
-                            GAME_BOARD* newBoard = decodeBoard(lastPacket->packetData);
-                            memcpy(currentBoard->board,lastPacket->packetData+1,9);
-                            freeGameBoard(newBoard);
-                            boardRedraw = 1;
+//                            awaitingMove = 1;
+//                            GAME_BOARD* newBoard = decodeBoard(lastPacket->packetData);
+//                            memcpy(currentBoard->board,newBoard->board,9);
+//                            freeGameBoard(newBoard);
+//                            boardRedraw = 1;
+                            break;
+
+                        default:
                             break;
                     }
+                    break;
+
+                default:
                     break;
             }
             freePacket(lastPacket);

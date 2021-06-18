@@ -27,10 +27,10 @@ PACKET *initPacketFromParams(char packetType, char packetSubtype, char packetCod
     newPacket->packetLength = 2;
     newPacket->packetType = packetType;
     newPacket->packetSubtype = packetSubtype;
-    if(newPacket->packetSubtype == ServiceErrorPacket ||
-       newPacket->packetSubtype == ServiceUserAction ||
-       newPacket->packetSubtype == RequestPlayerList ||
-       newPacket->packetSubtype == ServiceNotificationPacket)
+    if(newPacket->packetType == ServicePacket && newPacket->packetSubtype == ServiceErrorPacket ||
+       newPacket->packetType == ServicePacket && newPacket->packetSubtype == ServiceUserAction ||
+       newPacket->packetType == DataRequestPacket && newPacket->packetSubtype == RequestPlayerList ||
+       newPacket->packetType == ServicePacket && newPacket->packetSubtype == ServiceNotificationPacket)
     {
         newPacket->packetCode = packetCode;
         newPacket->packetLength++;
