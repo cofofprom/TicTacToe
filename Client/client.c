@@ -211,7 +211,9 @@ int main(int argc, char** argv)
                                                 while (clientWorker->receivedPacketQueue->length == 0) {}
                                                 lastPacket = getPacketFromClientWorker(clientWorker, &workerErr);
                                                 printf("Got packet");
-                                                if (lastPacket->packetCode == GameDeclineAction) {
+                                                if (lastPacket->packetType == ServicePacket &&
+                                                lastPacket->packetSubtype == ServiceErrorPacket &&
+                                                lastPacket->packetCode == GameDeclinedErr) {
                                                     printf("Game declined");
                                                     drawMenu(consoleScr, &mainMenu, currentSubmenuIndex, 2, 2);
                                                 } else if (lastPacket->packetSubtype == ServiceSuccess) {
