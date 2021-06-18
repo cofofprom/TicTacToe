@@ -20,6 +20,10 @@ set(SOURCES  clientNetworking/clientNetworkWorker.h
         Client/eventDispatcher.h
         Client/serverUserdata.c
         Client/serverUserdata.h
+        playerlist/playerlist.c
+        playerlist/playerlist.h
+        userdata/userdata.c
+        userdata/userdata.h
         gameboard/gameboard.c
         gameboard/gameboard.h
         gamestate/gamestate.c

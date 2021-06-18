@@ -227,7 +227,7 @@ int main(int argc, char** argv)
                                                 while (clientWorker->receivedPacketQueue->length == 0) {}
                                                 while(1) {
                                                     lastPacket = getPacketFromClientWorker(clientWorker, &workerErr);
-                                                    printf("Got packet");
+                                                    //printf("Got packet");
                                                     if (lastPacket->packetType == ServicePacket &&
                                                         lastPacket->packetSubtype == ServiceErrorPacket &&
                                                         lastPacket->packetCode == GameDeclinedErr) {
@@ -250,14 +250,18 @@ int main(int argc, char** argv)
                                                         break;
                                                     }
                                                     free(lastPacket);
+                                                    fflush(stdin);
                                                 }
                                                 break;
 
                                             case 2:
-                                                currentMenuId = 2;
-                                                requestFriendList(clientWorker);
-                                                currentPlayerlist = decodePlayerlist(lastPacket->packetData);
-                                                drawPlayerlistAt(consoleScr,currentPlayerlist,1,1,25);
+//                                                currentMenuId = 2;
+//                                                requestFriendList(clientWorker);
+//                                                while(clientWorker->receivedPacketQueue->length == 0){}
+//                                                lastPacket = getPacketFromClientWorker(clientWorker,&workerErr);
+//                                                currentPlayerlist = decodeFriendAndBlacklist(lastPacket->packetData);
+//                                                drawPlayerlistAt(consoleScr,currentPlayerlist,1,1,25);
+//                                                freePacket(lastPacket);
                                                 break;
                                         }
                                     }
@@ -308,8 +312,8 @@ int main(int argc, char** argv)
         while(clientWorker->receivedPacketQueue->length > 0)
         {
             lastPacket = getPacketFromClientWorker(clientWorker,&workerErr);
-            printf("Got packet: %d %d %d",lastPacket->packetType,lastPacket->packetSubtype,lastPacket->packetCode);
-            if (lastPacket->packetData != NULL) printf("Packet data: %s",lastPacket->packetData);
+            //printf("Got packet: %d %d %d",lastPacket->packetType,lastPacket->packetSubtype,lastPacket->packetCode);
+            //if (lastPacket->packetData != NULL) printf("Packet data: %s",lastPacket->packetData);
             switch(lastPacket->packetType)
             {
                 case ServicePacket:
@@ -368,7 +372,7 @@ int main(int argc, char** argv)
                                         awaitingMove = 0;
                                         freeGameBoard(currentBoard);
                                         msgStr = calloc(64,sizeof(char));
-                                        sprintf(msgStr,"Game ended. Its a tie!");
+                                        sprintf(msgStr,"Game ended. Opponent left!");
                                         printStrAtConsolePos(consoleScr,0,0,msgStr,BLACK_ON_WHITE);
                                         drawMenu(consoleScr, &menus[currentMenuId], currentSubmenuIndex, 2, 2);
                                         free(msgStr);

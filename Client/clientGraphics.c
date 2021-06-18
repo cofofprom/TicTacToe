@@ -122,6 +122,7 @@ void drawPlayerlistAt(HANDLE window, PLAYERLIST* targetPlayerlist, int x, int y,
     int iterlim = min(maxAmount,targetPlayerlist->playerListLength);
     for(int i = 0; i < iterlim; i++)
     {
-        printStrAtConsolePos(window,x+1,y+i,targetPlayerlist->playerdataList[i]->username,WHITE_ON_BLACK);
+        //printStrAtConsolePos(window,x+1,y+i,targetPlayerlist->playerdataList[i]->username,WHITE_ON_BLACK);
+        printf("%s\n",targetPlayerlist->playerdataList[i]->username);
     }
 }
