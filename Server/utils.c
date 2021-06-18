@@ -81,12 +81,13 @@ int recvPacket(SOCKET s, PACKET** p) {
             packetLenArr[1]--;
             memcpy(&packetLen, packetLenArr, sizeof(short));
             packet = (char*)calloc(packetLen + 3, sizeof(char));
-        } else if (bytes == SOCKET_ERROR) {
+        } else if (bytes == SOCKET_ERROR || bytes == 0) {
             int error = WSAGetLastError();
             //printf("ERROR %d\n", error);
-            if(error != WSAEWOULDBLOCK)
+            if(error != WSAEWOULDBLOCK || bytes == 0)
                 return SOCKET_ERROR;
         }
+        //printf("bytes = %d\n", bytes);
     } while(packet == NULL);
     while(waitingForPacket) {
         //printf("Waiting for full\n");
@@ -97,7 +98,7 @@ int recvPacket(SOCKET s, PACKET** p) {
             packet[0]++;
             packet[1]++;
             waitingForPacket = 0;
-        } else if (bytes == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK) return SOCKET_ERROR;
+        } else if (bytes == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK || bytes == 0) return SOCKET_ERROR;
     }
     *p = decodePacket(packet);
     //if(strlen(packet)==1) printf("DEBUG = %s\n", packet);
