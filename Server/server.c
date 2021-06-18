@@ -171,7 +171,6 @@ void* processRequest(void* arg)
             }
             send(USR[oi].usersock, rerror, strlen(rerror), 0);
             pthread_mutex_unlock(&mutex);
-            return 0;
         }
         else if (inputData->packetSubtype == SendPlayerMove)
         {
@@ -255,13 +254,21 @@ void* processRequest(void* arg)
             pthread_mutex_unlock(&mutex);
 
         }
-        else if(endgameconfirmationflag && inputData->packetSubtype == ServiceSuccess) {
+        /*else if(endgameconfirmationflag && inputData->packetSubtype == ServiceSuccess) {
             pthread_mutex_lock(&mutex);
             printf("ok received by %s\n", USR[curr].nickname);
             //send(USR[curr].usersock, "\xFF", 1, 0);
             pthread_mutex_unlock(&mutex);
             endgameconfirmationflag = -1;
             continue;
+        }*/
+        else if(inputData->packetSubtype == RequestPlayerList && inputData->packetType == DataRequestPacket) {
+            pthread_mutex_lock(&mutex);
+            char* data = playerList(USR, USRSZ);
+            PACKET* playerlist = initPacketFromParams(DataSendPacket, SendPlayerList, 0, data);
+            char* rpl = encodePacket(playerlist);
+            send(USR[curr].usersock, rpl, strlen(rpl), 0);
+            pthread_mutex_unlock(&mutex);
         }
     }
 }
