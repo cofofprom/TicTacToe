@@ -68,25 +68,31 @@ SERVERUSER_LITE* initUser(char* nickname, SOCKET usersock) {
     target->online = 1;
 }
 
-int recvPacket(SOCKET* s, PACKET** p) {
+int recvPacket(SOCKET s, PACKET** p) {
     short packetLen;
     char* packet = NULL;
     char* packetLenArr = (char*)calloc(3, sizeof(char));
     int waitingForPacket = 1;
     do {
-        int bytes = recv(*s, packetLenArr, 2, MSG_PEEK);
+        int bytes = recv(s, packetLenArr, 2, MSG_PEEK);
         if (bytes == 2) {
-            recv(*s, packetLenArr, 2, 0);
+            recv(s, packetLenArr, 2, 0);
             packetLenArr[0]--;
             packetLenArr[1]--;
             memcpy(&packetLen, packetLenArr, sizeof(short));
             packet = (char*)calloc(packetLen + 3, sizeof(char));
-        } else if (bytes == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK) return SOCKET_ERROR;
+        } else if (bytes == SOCKET_ERROR) {
+            int error = WSAGetLastError();
+            //printf("ERROR %d\n", error);
+            if(error != WSAEWOULDBLOCK)
+                return SOCKET_ERROR;
+        }
     } while(packet == NULL);
     while(waitingForPacket) {
-        int bytes = recv(*s, packet, packetLen, MSG_PEEK);
+        //printf("Waiting for full\n");
+        int bytes = recv(s, packet, packetLen, MSG_PEEK);
         if(bytes == packetLen) {
-            recv(*s, packet + 2, packetLen, 0);
+            recv(s, packet + 2, packetLen, 0);
             memcpy(packet, &packetLen, sizeof(short));
             packet[0]++;
             packet[1]++;
@@ -94,5 +100,7 @@ int recvPacket(SOCKET* s, PACKET** p) {
         } else if (bytes == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK) return SOCKET_ERROR;
     }
     *p = decodePacket(packet);
+    //if(strlen(packet)==1) printf("DEBUG = %s\n", packet);
+    printf("DEBUG rawpacket = %s\n", packet);
     return strlen(packet);
 }
