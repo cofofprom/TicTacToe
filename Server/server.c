@@ -194,21 +194,22 @@ void* processRequest(void* arg)
             winner2 = checkBoardWinConditions(USR[USR[curr].opponentID].game);
             int draw = 0;
             if (winner1 == GAMEBOARD_NO_WIN && winner2 == GAMEBOARD_NO_WIN) {
-                for(int i; i < 9; i++) if (USR[curr].game->board[i] == EmptyCell) draw++;
+                for(int i = 0; i < 9; i++) if (USR[curr].game->board[i] == EmptyCell) draw++;
             }
-            if (USR[curr].game && (winner1 != GAMEBOARD_NO_WIN && winner2 != GAMEBOARD_NO_WIN || !draw)) {
+            //printf("draw = %d\n", draw);
+            if (USR[curr].game && (winner1 != GAMEBOARD_NO_WIN && winner2 != GAMEBOARD_NO_WIN || !draw && winner1 == GAMEBOARD_NO_WIN)) {
                 char* winner = NULL;
                 int wlen = 0;
-                if(draw) {
+                if(!draw && winner1 != GAMEBOARD_NO_WIN) {
                     if (USR[curr].role == winner1) winner = USR[curr].nickname;
                     else winner = USR[USR[curr].opponentID].nickname;
                     wlen = strlen(winner);
                 }
                 pthread_mutex_unlock(&mutex);
-                if(draw) printf("%s won!\n", winner);
+                if(winner1 != GAMEBOARD_NO_WIN) printf("%s won!\n", winner);
                 else printf("withdraw!\n");
                 char* stopData = (char*)calloc(wlen+3, sizeof(char));
-                stopData[0] = 2;
+                stopData[0] = winner1 != GAMEBOARD_NO_WIN ? 2 : 3;
                 stopData[1] = wlen;
                 for(int i = 2; i < wlen + 2; i++) {
                     stopData[i] = winner[i - 2];
@@ -245,6 +246,7 @@ void* processRequest(void* arg)
         else if(endgameconfirmationflag && inputData->packetSubtype == ServiceSuccess) {
             pthread_mutex_lock(&mutex);
             printf("ok received by %s\n", USR[curr].nickname);
+            send(USR[curr].usersock, "a", 1, 0);
             pthread_mutex_unlock(&mutex);
             endgameconfirmationflag = -1;
             continue;
