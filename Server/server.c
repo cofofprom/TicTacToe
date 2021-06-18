@@ -270,6 +270,19 @@ void* processRequest(void* arg)
             send(USR[curr].usersock, rpl, strlen(rpl), 0);
             pthread_mutex_unlock(&mutex);
         }
+
+        else if(inputData->packetType == ServicePacket && inputData->packetSubtype == ServiceEndGame) {
+            pthread_mutex_lock(&mutex);
+            char* endgame = encodePacket(inputData);
+            send(USR[USR[curr].opponentID].usersock, endgame, strlen(endgame), 0);
+            USR[curr].game = 0;
+            USR[USR[curr].opponentID].game = 0;
+            USR[USR[curr].opponentID].opponentID = -1;
+            USR[curr].opponentID = -1;
+            USR[curr].online = 0;
+            pthread_mutex_unlock(&mutex);
+            return 0;
+        }
     }
 }
 
