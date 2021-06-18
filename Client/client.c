@@ -95,9 +95,11 @@ int main(int argc, char** argv)
     {
         freePacket(lastPacket);
         printf("Enter login:");
+        fflush(stdin);
         fgets(login,32,stdin);
 
         printf("Enter password:");
+        fflush(stdin);
         fgets(password,32,stdin);
 
         login[strlen(login)-1] = 0;
@@ -193,38 +195,51 @@ int main(int argc, char** argv)
                                         awaitingMove = 0;
                                     }
                                     if (inGame) {
-                                        if(awaitingMove) {
+                                        if(awaitingMove && getCellTypeAt(currentBoard,currentBoardRow,currentBoardColumn) == EmptyCell) {
                                             boardRedraw = 1;
                                             awaitingMove = 0;
                                             sendBoardMove(clientWorker, currentBoardRow, currentBoardColumn);
                                             makeMove(currentBoard,currentBoardRow,currentBoardColumn,myCellType);
+                                            currentBoardColumn = -1;
+                                            currentBoardRow = -1;
                                         }
                                     } else {
                                         switch (currentSubmenuIndex) {
                                             case 1:
                                                 system("cls");
                                                 printf("Enter opponent's nickname:\n");
+                                                fflush(stdin);
                                                 fgets(requestedGameNickname, 32, stdin);
                                                 requestedGameNickname[strlen(requestedGameNickname) - 1] = 0;
                                                 requestGame(clientWorker, 3, requestedGameNickname);
                                                 printf("Awaiting response...\n");
                                                 while (clientWorker->receivedPacketQueue->length == 0) {}
-                                                lastPacket = getPacketFromClientWorker(clientWorker, &workerErr);
-                                                printf("Got packet");
-                                                if (lastPacket->packetType == ServicePacket &&
-                                                lastPacket->packetSubtype == ServiceErrorPacket &&
-                                                lastPacket->packetCode == GameDeclinedErr) {
-                                                    printf("Game declined");
-                                                    drawMenu(consoleScr, &mainMenu, currentSubmenuIndex, 2, 2);
-                                                } else if (lastPacket->packetSubtype == ServiceSuccess) {
-                                                    printf("Game accepted\n");
-                                                    currentBoard = initNewBoard(3);
-                                                    inGame = 1;
-                                                    boardRedraw = 1;
-                                                    myCellType = ZeroCell;
-                                                    oppCellType = CrossCell;
+                                                while(1) {
+                                                    lastPacket = getPacketFromClientWorker(clientWorker, &workerErr);
+                                                    printf("Got packet");
+                                                    if (lastPacket->packetType == ServicePacket &&
+                                                        lastPacket->packetSubtype == ServiceErrorPacket &&
+                                                        lastPacket->packetCode == GameDeclinedErr) {
+                                                        printf("Game declined");
+                                                        system("cls");
+                                                        drawMenu(consoleScr, &mainMenu, currentSubmenuIndex, 2, 2);
+                                                        free(lastPacket);
+                                                        break;
+                                                    } else if (lastPacket->packetSubtype == ServiceSuccess) {
+                                                        printf("Game accepted\n");
+                                                        system("cls");
+                                                        currentBoard = initNewBoard(3);
+                                                        inGame = 1;
+                                                        boardRedraw = 1;
+                                                        myCellType = ZeroCell;
+                                                        oppCellType = CrossCell;
+                                                        currentBoardColumn = -1;
+                                                        currentBoardRow = -1;
+                                                        free(lastPacket);
+                                                        break;
+                                                    }
+                                                    free(lastPacket);
                                                 }
-                                                free(lastPacket);
                                                 break;
                                         }
                                     }
@@ -290,6 +305,7 @@ int main(int argc, char** argv)
                                     printf("Game request from: %s\n",lastPacket->packetData+2);
                                     char acceptStr[] = "Accept? Y/N";
                                     printStrAtConsolePos(consoleScr,2,2,acceptStr,WHITE_ON_BLACK);
+                                    fflush(stdin);
                                     char ans = getchar();
 
                                     do {
@@ -309,10 +325,11 @@ int main(int argc, char** argv)
                                             break;
                                         } else {
                                             printStrAtConsolePos(consoleScr, 2, 2, acceptStr, WHITE_ON_BLACK);
+                                            fflush(stdin);
                                             ans = getchar();
                                         }
                                     }
-                                    while (ans == 'y' || ans == 'Y' || ans == 'n' || ans == 'N');
+                                    while (1);
 
                                     break;
 
@@ -376,10 +393,11 @@ int main(int argc, char** argv)
                     switch(lastPacket->packetSubtype)
                     {
                         case SendPlayerMove:
-                            printf("SendMove");
                             awaitingMove = 1;
                             makeMove(currentBoard,lastPacket->packetData[0] - 1, lastPacket->packetData[1]-1,oppCellType);
                             boardRedraw = 1;
+                            currentBoardColumn = 1;
+                            currentBoardRow = 1;
                             break;
                     }
                     break;
@@ -411,6 +429,30 @@ int main(int argc, char** argv)
         {
             if (boardRedraw == 1) {
                 draw3x3BoardAt(consoleScr, currentBoard, currentBoardRow, currentBoardColumn, 2, 2);
+                if(awaitingMove == 1)
+                {
+                    char* notifStr = calloc(64, sizeof(char));
+                    if(myCellType == ZeroCell) {
+                        sprintf(notifStr, "Make your move... You sign is %c", 'O');
+                    }else
+                    {
+                        sprintf(notifStr, "Make your move... You sign is %c", 'X');
+                    }
+                    printStrAtConsolePos(consoleScr,0,0,notifStr,BLACK_ON_WHITE);
+                    free(notifStr);
+                }
+                else
+                {
+                    char* notifStr = calloc(64, sizeof(char));
+                    if(myCellType == ZeroCell) {
+                        sprintf(notifStr, "Waiting for opponent's move... You sign is %c", 'O');
+                    }else
+                    {
+                        sprintf(notifStr, "Waiting for opponent's move... You sign is %c", 'X');
+                    }
+                    printStrAtConsolePos(consoleScr,0,0,notifStr,BLACK_ON_WHITE);
+                    free(notifStr);
+                }
                 boardRedraw = 0;
             }
         }
