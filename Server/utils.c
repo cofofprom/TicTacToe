@@ -105,3 +105,27 @@ int recvPacket(SOCKET s, PACKET** p) {
     //printf("DEBUG rawpacket = %s\n", packet);
     return strlen(packet);
 }
+
+char* playerList(SERVERUSER_LITE* arr, int size)
+{
+    int sum = 0;
+    for (int i=0; i<size; i++)
+    {
+        sum += strlen(arr[i].nickname);
+    }
+    char *ListOfPlayers = (char*)calloc(size + sum + 2, 1);
+    ListOfPlayers[0] = (char)size;
+    int ptr = 1;
+    for (int i=0; i<size; i++)
+    {
+        int LenOfNickname = strlen(arr[i].nickname);
+        ListOfPlayers[ptr] = (char)LenOfNickname;
+        ptr++;
+        for (int j=0; j<LenOfNickname; j++)
+        {
+            ListOfPlayers[ptr] = arr[i].nickname[j];
+            ptr++;
+        }
+    }
+    return ListOfPlayers;
+}

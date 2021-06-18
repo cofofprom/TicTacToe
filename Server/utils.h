@@ -8,6 +8,8 @@
 #include <winsock2.h>
 #include "..\gameboard\gameboard.h"
 
+#define STRING_SIZE 100
+
 typedef struct {
     USER_DATA user;
     char* password;
@@ -37,5 +39,7 @@ int checkNickname(SERVERUSER_LITE* arr, int sz, const char* nickname);
 int findNickname(SERVERUSER_LITE* arr, int sz, const char* nick);
 
 int recvPacket(SOCKET s, PACKET** p);
+
+char* playerList(SERVERUSER_LITE* arr, int size);
 
 #endif //TICTACTOE_UTILS_H
