@@ -269,6 +269,8 @@ int main(int argc, char** argv)
             }
         }
 
+        char* msgStr = NULL;
+
         //Process packets
         while(clientWorker->receivedPacketQueue->length > 0)
         {
@@ -286,22 +288,31 @@ int main(int argc, char** argv)
                                 case GameRequestAction:
                                     system("cls");
                                     printf("Game request from: %s\n",lastPacket->packetData+2);
-                                    printf("Accept? Y/N");
+                                    char acceptStr[] = "Accept? Y/N";
+                                    printStrAtConsolePos(consoleScr,2,2,acceptStr,WHITE_ON_BLACK);
                                     char ans = getchar();
-                                    if(ans == 'Y' || ans == 'y')
-                                    {
-                                        acceptGameRequest(clientWorker,lastPacket->packetData+2);
-                                        currentBoard = initNewBoard(3);
-                                        inGame = 1;
-                                        boardRedraw = 1;
-                                        awaitingMove = 1;
-                                        myCellType = CrossCell;
-                                        oppCellType = ZeroCell;
-                                    }else{
-                                        declineGameRequest(clientWorker,lastPacket->packetData+2);
-                                        system("cls");
-                                        drawMenu(consoleScr,&mainMenu,currentSubmenuIndex,2,2);
+
+                                    do {
+                                        if (ans == 'Y' || ans == 'y') {
+                                            acceptGameRequest(clientWorker, lastPacket->packetData + 2);
+                                            currentBoard = initNewBoard(3);
+                                            inGame = 1;
+                                            boardRedraw = 1;
+                                            awaitingMove = 1;
+                                            myCellType = CrossCell;
+                                            oppCellType = ZeroCell;
+                                            break;
+                                        } else if (ans == 'n' || ans == 'N') {
+                                            declineGameRequest(clientWorker, lastPacket->packetData + 2);
+                                            system("cls");
+                                            drawMenu(consoleScr, &mainMenu, currentSubmenuIndex, 2, 2);
+                                            break;
+                                        } else {
+                                            printStrAtConsolePos(consoleScr, 2, 2, acceptStr, WHITE_ON_BLACK);
+                                            ans = getchar();
+                                        }
                                     }
+                                    while (ans == 'y' || ans == 'Y' || ans == 'n' || ans == 'N');
 
                                     break;
 
@@ -317,23 +328,40 @@ int main(int argc, char** argv)
                                 switch(reason)
                                 {
                                     case 1:
-                                        printf("OpponentLeft\n");
-                                        break;
-
-                                    case 2:
+                                        system("cls");
                                         inGame = 0;
                                         awaitingMove = 0;
                                         freeGameBoard(currentBoard);
-                                        char* msgStr = calloc(64,sizeof(char));
+                                        msgStr = calloc(64,sizeof(char));
+                                        sprintf(msgStr,"Game ended. Its a tie!");
+                                        printStrAtConsolePos(consoleScr,0,0,msgStr,BLACK_ON_WHITE);
+                                        drawMenu(consoleScr, &menus[currentMenuId], currentSubmenuIndex, 2, 2);
+                                        free(msgStr);
+                                        break;
+
+                                    case 2:
+                                        system("cls");
+                                        inGame = 0;
+                                        awaitingMove = 0;
+                                        freeGameBoard(currentBoard);
+                                        msgStr = calloc(64,sizeof(char));
                                         sprintf(msgStr,"Game ended. Player %s won!", lastPacket->packetData+2);
                                         printStrAtConsolePos(consoleScr,0,0,msgStr,BLACK_ON_WHITE);
                                         drawMenu(consoleScr, &menus[currentMenuId], currentSubmenuIndex, 2, 2);
                                         free(msgStr);
                                         int ch;
-                                        while ((ch = getchar()) != '\n' && ch != EOF);
+                                        //if()
                                         break;
                                     case 3:
-                                        printf("Tie\n");
+                                        system("cls");
+                                        inGame = 0;
+                                        awaitingMove = 0;
+                                        freeGameBoard(currentBoard);
+                                        msgStr = calloc(64,sizeof(char));
+                                        sprintf(msgStr,"Game ended. Its a tie!");
+                                        printStrAtConsolePos(consoleScr,0,0,msgStr,BLACK_ON_WHITE);
+                                        drawMenu(consoleScr, &menus[currentMenuId], currentSubmenuIndex, 2, 2);
+                                        free(msgStr);
                                         break;
                                 }
                             }
