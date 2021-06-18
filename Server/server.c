@@ -246,7 +246,7 @@ void* processRequest(void* arg)
         else if(endgameconfirmationflag && inputData->packetSubtype == ServiceSuccess) {
             pthread_mutex_lock(&mutex);
             printf("ok received by %s\n", USR[curr].nickname);
-            send(USR[curr].usersock, "a", 1, 0);
+            //send(USR[curr].usersock, "a", 1, 0);
             pthread_mutex_unlock(&mutex);
             endgameconfirmationflag = -1;
             continue;
