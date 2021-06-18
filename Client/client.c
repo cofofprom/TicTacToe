@@ -319,12 +319,14 @@ int main(int argc, char** argv)
                                         break;
 
                                     case 2:
-                                        printf("Player %s won!\n", lastPacket->packetData+2);
-                                        char foo = getchar();
                                         inGame = 0;
                                         awaitingMove = 0;
                                         freeGameBoard(currentBoard);
+                                        char* msgStr = calloc(64,sizeof(char));
+                                        sprintf(msgStr,"Game ended. Player %s won!", lastPacket->packetData+2);
+                                        printStrAtConsolePos(consoleScr,0,0,msgStr,BLACK_ON_WHITE);
                                         drawMenu(consoleScr, &menus[currentMenuId], currentSubmenuIndex, 2, 2);
+                                        free(msgStr);
                                         break;
                                     case 3:
                                         printf("Tie\n");
