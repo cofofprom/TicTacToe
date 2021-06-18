@@ -162,7 +162,14 @@ void* processRequest(void* arg)
             PACKET* error = initPacketFromParams(ServicePacket, ServiceErrorPacket, GameDeclinedErr, 0);
             char* rerror = encodePacket(error);
             pthread_mutex_lock(&mutex);
-            send(USR[curr].usersock, rerror, strlen(rerror), 0);
+            int oi = 0;
+            for(int i = 0; i < USRSZ; i++) {
+                if(USR[i].opponentID == curr) {
+                    oi = i;
+                    break;
+                }
+            }
+            send(USR[oi].usersock, rerror, strlen(rerror), 0);
             pthread_mutex_unlock(&mutex);
             return 0;
         }
