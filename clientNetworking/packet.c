@@ -27,10 +27,10 @@ PACKET *initPacketFromParams(char packetType, char packetSubtype, char packetCod
     newPacket->packetLength = 2;
     newPacket->packetType = packetType;
     newPacket->packetSubtype = packetSubtype;
-    if(newPacket->packetSubtype == ServiceErrorPacket ||
-       newPacket->packetSubtype == ServiceUserAction ||
-       newPacket->packetSubtype == RequestPlayerList ||
-       newPacket->packetSubtype == ServiceNotificationPacket)
+    if(newPacket->packetType == ServicePacket && newPacket->packetSubtype == ServiceErrorPacket ||
+       newPacket->packetType == ServicePacket && newPacket->packetSubtype == ServiceUserAction ||
+       newPacket->packetType == DataRequestPacket && newPacket->packetSubtype == RequestPlayerList ||
+       newPacket->packetType == ServicePacket && newPacket->packetSubtype == ServiceNotificationPacket)
     {
         newPacket->packetCode = packetCode;
         newPacket->packetLength++;
@@ -87,10 +87,10 @@ PACKET *decodePacket(char *encoding) {
     newPacket->packetSubtype = *currentEncodingPos;
     currentEncodingPos++;
 
-    if (newPacket->packetSubtype == ServiceErrorPacket ||
-        newPacket->packetSubtype == ServiceUserAction ||
-        newPacket->packetSubtype == RequestPlayerList ||
-        newPacket->packetSubtype == ServiceNotificationPacket) {
+    if (newPacket->packetType == ServicePacket && newPacket->packetSubtype == ServiceErrorPacket ||
+        newPacket->packetType == ServicePacket && newPacket->packetSubtype == ServiceUserAction ||
+        newPacket->packetType == DataRequestPacket && newPacket->packetSubtype == RequestPlayerList ||
+        newPacket->packetType == ServicePacket && newPacket->packetSubtype == ServiceNotificationPacket) {
         newPacket->packetCode = *currentEncodingPos;
         currentEncodingPos++;
     }
@@ -139,10 +139,10 @@ char *encodePacket(PACKET *targetPacket) {
     *currentEncodingPos = targetPacket->packetSubtype;
     currentEncodingPos++;
 
-    if(targetPacket->packetSubtype == ServiceErrorPacket ||
-       targetPacket->packetSubtype == ServiceUserAction ||
-       targetPacket->packetSubtype == RequestPlayerList ||
-       targetPacket->packetSubtype == ServiceNotificationPacket)
+    if(targetPacket->packetType == ServicePacket && targetPacket->packetSubtype == ServiceErrorPacket ||
+       targetPacket->packetType == ServicePacket && targetPacket->packetSubtype == ServiceUserAction ||
+       targetPacket->packetType == DataRequestPacket && targetPacket->packetSubtype == RequestPlayerList ||
+       targetPacket->packetType == ServicePacket && targetPacket->packetSubtype == ServiceNotificationPacket)
     {
         *currentEncodingPos = targetPacket->packetCode;
         currentEncodingPos++;

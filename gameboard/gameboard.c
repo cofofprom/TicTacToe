@@ -232,7 +232,7 @@ GAME_BOARD *decodeBoard(char *encoding) {
     return newBoard;
 }
 
-int drawCLIgameboard(GAME_BOARD *targetBoard) {
+/*int drawCLIgameboard(GAME_BOARD *targetBoard) {
     if(targetBoard == NULL || targetBoard->board == NULL)
     {
         return GAMEBOARD_NULL_PTR_ERROR;
@@ -305,4 +305,4 @@ int drawCLIgameboard(GAME_BOARD *targetBoard) {
 
         printf("%c",205);
     }
-}
+}*/
