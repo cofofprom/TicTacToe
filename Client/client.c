@@ -327,6 +327,8 @@ int main(int argc, char** argv)
                                         printStrAtConsolePos(consoleScr,0,0,msgStr,BLACK_ON_WHITE);
                                         drawMenu(consoleScr, &menus[currentMenuId], currentSubmenuIndex, 2, 2);
                                         free(msgStr);
+                                        int ch;
+                                        while ((ch = getchar()) != '\n' && ch != EOF);
                                         break;
                                     case 3:
                                         printf("Tie\n");
